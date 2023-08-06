@@ -29,14 +29,16 @@ const BoardSection = ({ id, title, posts, selectedPosts }) => {
     id,
   });
 
-  const [sliderRef] = useKeenSlider({
-    loop: false,
-    slides: {
-      perView: 3,
-      spacing: 15,
+  const [sliderRef] = useKeenSlider(
+    {
+      initial: 0,
+      slides: {
+        perView: 3,
+        spacing: 25,
+      },
     },
-    plugins: [MutationPlugin],
-  });
+    [MutationPlugin]
+  );
 
   return (
     <div

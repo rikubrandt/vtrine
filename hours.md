@@ -9,6 +9,6 @@
 | 5.8. | 4    | Profile pages, suggestions (not implemented)                     |
 |      | 4    | Profile slider component                                         |
 |      | 1    | Refactor                                                         |
-| 6.8  | 1    | TODO                                                             |
+| 6.8  | 4    | User can upload new sliders, abandoned the DnD func              |
 
 | Sum | 24 | |

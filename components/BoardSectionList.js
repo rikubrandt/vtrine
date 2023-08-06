@@ -80,7 +80,6 @@ const BoardSectionList = ({ data, selectedPosts }) => {
   const handleDragEnd = ({ active, over }) => {
     const activeContainer = findBoardSectionContainer(boardSections, active.id);
     const overContainer = findBoardSectionContainer(boardSections, over?.id);
-    console.log(activeContainer, overContainer);
 
     if (
       !activeContainer ||
@@ -128,14 +127,7 @@ const BoardSectionList = ({ data, selectedPosts }) => {
             <BoardSection
               id={"photos"}
               title={"Your photos"}
-              posts={boardSections["photos"]}
-            />
-          </div>
-          <div item key={"Slider"}>
-            <BoardSection
-              id={"slider"}
-              title={"Slider"}
-              posts={boardSections["slider"]}
+              posts={selectedPosts}
             />
           </div>
           <DragOverlay dropAnimation={dropAnimation}>

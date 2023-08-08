@@ -10,5 +10,6 @@
 |      | 4    | Profile slider component                                         |
 |      | 1    | Refactor                                                         |
 | 6.8  | 4    | User can upload new sliders, abandoned the DnD func              |
+| 8.8  | 2    | Profile now displays users all sliders                           |
 
 | Sum | 24 | |

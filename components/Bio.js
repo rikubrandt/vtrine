@@ -1,5 +1,4 @@
 function Bio({ user, posts }) {
-  console.log(user, posts);
   return (
     <div className="p-2">
       <figure className="flex flex-wrap bg-white rounded-xl p-8 md:p-0 items-start">

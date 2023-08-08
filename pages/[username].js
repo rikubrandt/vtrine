@@ -20,6 +20,8 @@ export async function getServerSideProps({ params }) {
 
   if (userDoc) {
     user = userDoc.data();
+    user.uid = userDoc.id; // Here you are adding the UID to the user object
+
     const postsQuery = userDoc.ref
       .collection("posts")
       .orderBy("createdAt", "desc");

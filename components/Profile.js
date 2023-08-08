@@ -4,7 +4,7 @@ import PostsGrid from "./PostsGrid";
 import PostsCluster from "./PostsCluster";
 import Bio from "./Bio";
 import GridSlider from "./GridSlider";
-
+import SliderDisplay from "./SliderDisplay";
 function Profile({ user, posts }) {
   const [activeTab, setActiveTab] = useState("profile");
 
@@ -59,7 +59,7 @@ function Profile({ user, posts }) {
         <div>
           {activeTab === "profile" && <PostsGrid posts={posts} />}
           {activeTab === "cluster" && <PostsCluster posts={posts} />}
-          {activeTab === "slider" && <GridSlider posts={posts} />}
+          {activeTab === "slider" && <SliderDisplay userId={user.uid} />}
 
           {/* Conditionally render other components for other tabs... */}
         </div>

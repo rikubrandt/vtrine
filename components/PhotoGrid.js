@@ -7,6 +7,7 @@ import {
   useSensors,
   closestCenter,
   useDraggable,
+  useDroppable,
   DragOverlay,
 } from "@dnd-kit/core";
 import {
@@ -15,76 +16,111 @@ import {
   sortableKeyboardCoordinates,
   rectSortingStrategy,
   useSortable,
+  Droppable,
 } from "@dnd-kit/sortable";
+import { restrictToVerticalAxis } from "@dnd-kit/modifiers";
+
 import { CSS } from "@dnd-kit/utilities";
+
 function PhotoGrid({ initialPhotos }) {
   const [photos, setPhotos] = useState(initialPhotos);
-  const [orderedPhotos, setOrderedPhotos] = useState(photos);
+  const [orderedPhotos, setOrderedPhotos] = useState([photos]);
+  const [selectedPhotos, setSelectedPhotos] = useState([]); // State for the photos in the droppable grid area
   const [draggedItem, setDraggedItem] = useState(null);
 
-  const sensors = useSensors(
-    useSensor(PointerSensor),
-    useSensor(KeyboardSensor, {
-      coordinateGetter: sortableKeyboardCoordinates,
-    })
-  );
-
   const handleDragStart = (event) => {
-    console.log("Drag started", event);
+    //console.log("Drag started", event);
     setDraggedItem(event.active.id);
   };
 
   const handleDragEnd = (event) => {
-    setDraggedItem(null);
     const { active, over } = event;
-    console.log("Active:", active);
-    console.log("Over:", over);
-    if (active.id !== over.id) {
-      console.log("DRAG END IF");
-      const oldIndex = orderedPhotos.findIndex(
-        (photo) => photo.id.toString() === active.id
-      );
-      const newIndex = orderedPhotos.findIndex(
-        (photo) => photo.id.toString() === over.id
+    setDraggedItem(null);
+    console.log(active, over);
+    if (!over || active.id === over.id) return;
+
+    // Extract the dragged photo from the photos array
+    const draggedPhoto = photos.find(
+      (photo) => photo.id.toString() === active.id
+    );
+
+    // If there's no dragged photo or if it's dropped outside any container, exit
+    if (!draggedPhoto) return;
+
+    if (over.id === "target") {
+      // Remove photo from the initial photos list
+      setPhotos((prev) => prev.filter((photo) => photo.id !== draggedPhoto.id));
+
+      // Add photo to the target photos list
+      setSelectedPhotos((prev) => [...prev, draggedPhoto]);
+    }
+    // Optional: If you want to drag back from target to initial
+    else if (over.id === "initial") {
+      // Remove photo from the target photos list
+      setSelectedPhotos((prev) =>
+        prev.filter((photo) => photo.id !== draggedPhoto.id)
       );
 
-      console.log(oldIndex, newIndex);
-      setOrderedPhotos(arrayMove(orderedPhotos, oldIndex, newIndex));
+      // Add photo back to the initial photos list
+      setPhotos((prev) => [...prev, draggedPhoto]);
     }
   };
-
   return (
-    photos && (
+    <div className="pl-10">
       <DndContext onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
-        <SortableContext
-          strategy={rectSortingStrategy}
-          items={orderedPhotos.map((photo) => photo.id.toString())}
-        >
-          <div className="grid grid-cols-3 gap-4">
-            {orderedPhotos.map((photo) => (
-              <DraggablePhoto id={photo.id} key={photo.id} photo={photo} />
-            ))}
-          </div>
-        </SortableContext>
+        <DroppableContainer id={"initial"} photos={photos} />
+
+        <DroppableContainer id={"target"} photos={selectedPhotos} />
+
         <DragOverlay>
           {draggedItem ? (
             <img
               src={
-                orderedPhotos.find(
-                  (photo) => photo.id.toString() === draggedItem
-                ).downloadURL
+                photos.find((photo) => photo.id.toString() === draggedItem)
+                  ?.downloadURL
               }
               alt="Dragged item"
-              className="w-full h-auto"
+              className="w-48 h-48"
             />
           ) : null}
         </DragOverlay>
       </DndContext>
-    )
+    </div>
   );
 }
 
 export default PhotoGrid;
+
+const DroppableContainer = ({ id, photos = [] }) => {
+  const { setNodeRef, isOver } = useDroppable({
+    id,
+  });
+
+  return (
+    <div
+      id={id}
+      ref={setNodeRef}
+      className="container bg-red-100 w-full p-1 mb-4"
+    >
+      <SortableContext
+        strategy={rectSortingStrategy}
+        items={photos.map((photo) => photo.id.toString())}
+      >
+        <div className="h-full grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
+          {photos.length ? (
+            photos.map((photo) => (
+              <DraggablePhoto id={photo.id} key={photo.id} photo={photo} />
+            ))
+          ) : (
+            <span className="col-span-full flex justify-center items-center">
+              Drag photos here
+            </span>
+          )}
+        </div>
+      </SortableContext>
+    </div>
+  );
+};
 
 const DraggablePhoto = ({ photo }) => {
   const { setNodeRef, listeners, transform, isDragging } = useSortable({
@@ -96,11 +132,19 @@ const DraggablePhoto = ({ photo }) => {
   };
 
   return (
-    <div role="button" ref={setNodeRef} {...listeners} style={style}>
+    <div
+      role="button"
+      ref={setNodeRef}
+      {...listeners}
+      style={style}
+      className="border rounded cursor-pointer"
+    >
       <img
         src={photo.downloadURL}
         alt={photo.title}
-        className={`w-full h-auto ${isDragging ? "opacity-50" : "opacity-100"}`}
+        className={`w-full object-cover h-48 rounded ${
+          isDragging ? "opacity-50" : "opacity-100"
+        }`}
       />
     </div>
   );

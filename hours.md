@@ -13,5 +13,8 @@
 | 8.8  | 2    | Profile now displays users all sliders                           |
 | 14.8 | 2    | Dummy components to hold a sortable/draggable images             |
 | 16.8 | 2    | PhotoGrid Progress -> User can dnd from container to another.    |
+| 29.8 | 3    | Little to no progress witht the PhotoGrid                        |
+| 3.9  | 4    | GalleryGrid now has working demo for drag and drop of images     |
+| 8.9  | 4    | GalleryDesign to Design page                                     |
 
-| Sum | 24 | |
+| Sum | x | |

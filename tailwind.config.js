@@ -9,7 +9,17 @@ module.exports = {
     "./src/**/*.{js,ts,jsx,tsx,mdx}",
   ],
   theme: {
-    extend: {},
+    extend: {
+      colors: {
+        "vitrine-background": "#FAF3DD",
+        "vitrine-text": "#40434E",
+        "vitrine-primary": "#7FD8BE",
+        "vitrine-secondary-1": "#FF9F1C",
+        "vitrine-secondary-2": "#CAB8FF",
+        "vitrine-hover": "#005377",
+        "vitrine-error": "#E56155",
+      },
+    },
   },
   plugins: [
     require("@tailwindcss/forms"),

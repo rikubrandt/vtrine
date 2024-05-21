@@ -17,5 +17,6 @@
 |    3.9    | 4    | GalleryGrid now has working demo for drag and drop of images     |
 |    8.9    | 4    | GalleryDesign to Design page                                     |
 | 20.5.2024 | 3    | Simplify profile page                                            |
+| 21.5.2024 | 1    | GridSlider mod                                                   |
 
 | Sum | x | |

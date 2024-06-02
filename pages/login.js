@@ -10,22 +10,28 @@ function LoginPage() {
     formState: { errors },
   } = useForm();
   const router = useRouter();
+  const [loginError, setLoginError] = useState("");
 
   useEffect(() => {
-    firebase.auth().onAuthStateChanged((user) => {
+    const unsubscribe = firebase.auth().onAuthStateChanged((user) => {
       if (user) {
         // User is authenticated, redirect to the dashboard page
         router.push("/profile");
       }
     });
-  }, []);
+
+    // Cleanup subscription on unmount
+    return () => unsubscribe();
+  }, [router]);
 
   const onSubmit = async ({ email, password }) => {
+    setLoginError(""); // Reset error state
     try {
       await firebase.auth().signInWithEmailAndPassword(email, password);
       router.push("/profile");
     } catch (error) {
       console.error("Login error", error);
+      setLoginError("Failed to login. Please check your credentials.");
     }
   };
 
@@ -66,6 +72,9 @@ function LoginPage() {
           >
             Login
           </button>
+          {loginError && (
+            <p className="text-red-600 text-xs pt-2">{loginError}</p>
+          )}
         </form>
       </div>
     </div>

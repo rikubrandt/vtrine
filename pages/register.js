@@ -1,26 +1,32 @@
 import React, { useEffect } from "react";
-import { firebase, firestore } from "../lib/firebase";
-import Router, { useRouter } from "next/router";
 import { useForm } from "react-hook-form";
+import { firebase, firestore } from "../lib/firebase";
+import { useRouter } from "next/router";
 
 function RegisterPage() {
-  const { register, handleSubmit, watch, errors } = useForm();
+  const { register, handleSubmit, formState: { errors }, setError } = useForm();
   const router = useRouter();
 
   useEffect(() => {
-    firebase.auth().onAuthStateChanged((user) => {
+    const unsubscribe = firebase.auth().onAuthStateChanged((user) => {
       if (user) {
         // User is authenticated, redirect to the dashboard page
         router.push("/profile");
       }
     });
-  }, []);
+
+    // Cleanup subscription on unmount
+    return () => unsubscribe();
+  }, [router]);
 
   const handleRegister = async (data) => {
     const { email, username, password, confirmPassword } = data;
 
     if (password !== confirmPassword) {
-      console.error("Passwords do not match");
+      setError("confirmPassword", {
+        type: "manual",
+        message: "Passwords do not match",
+      });
       return;
     }
 
@@ -36,7 +42,6 @@ function RegisterPage() {
         const usernameDoc = firestore.doc(`usernames/${username}`);
         const batch = firestore.batch();
 
-        console.log(user.uid);
         batch.set(usernameDoc, { uid: user.uid });
         batch.set(userDoc, {
           email: email,
@@ -54,94 +59,90 @@ function RegisterPage() {
       })
       .catch((error) => {
         // Handle registration error
-        console.error(error.message);
+        if (error.code === "auth/email-already-in-use") {
+          setError("email", {
+            type: "manual",
+            message: "Email is already in use",
+          });
+        } else if (error.code === "auth/weak-password") {
+          setError("password", {
+            type: "manual",
+            message: "Password should be at least 6 characters",
+          });
+        } else if (error.code === "auth/invalid-email") {
+          setError("email", {
+            type: "manual",
+            message: "The email address is badly formatted",
+          });
+        } else {
+          console.error(error.message);
+        }
       });
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
-        <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            Register for an account
-          </h2>
-        </div>
-        <form
-          className="mt-8 space-y-6"
-          onSubmit={handleSubmit(handleRegister)}
-        >
-          <input type="hidden" name="remember" defaultValue="true" />
-          <div className="rounded-md shadow-sm -space-y-px">
-            <div>
-              <label htmlFor="email-address" className="sr-only">
-                Email address
-              </label>
-              <input
-                id="email-address"
-                name="email"
-                type="email"
-                autoComplete="email"
-                required
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                placeholder="Email address"
-                {...register("email", { required: true })}
-              />
-            </div>
-            <div>
-              <label htmlFor="username" className="sr-only">
-                Username
-              </label>
-              <input
-                id="username"
-                name="username"
-                type="text"
-                autoComplete="username"
-                required
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                placeholder="Username"
-                {...register("username", { required: true })}
-              />
-            </div>
-            <div>
-              <label htmlFor="password" className="sr-only">
-                Password
-              </label>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                autoComplete="current-password"
-                required
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                placeholder="Password"
-                {...register("password", { required: true })}
-              />
-            </div>
-            <div>
-              <label htmlFor="confirm-password" className="sr-only">
-                Confirm Password
-              </label>
-              <input
-                id="confirm-password"
-                name="confirmPassword"
-                type="password"
-                autoComplete="current-password"
-                required
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                placeholder="Confirm Password"
-                {...register("confirmPassword", { required: true })}
-              />
-            </div>
+    <div className="flex items-center justify-center h-screen bg-gray-200">
+      <div className="p-12 bg-white rounded shadow-xl w-96">
+        <h1 className="text-3xl font-bold mb-6">Register for an account</h1>
+        <form onSubmit={handleSubmit(handleRegister)}>
+          <div className="mb-5">
+            <label className="block text-xs mb-2">Email</label>
+            <input
+              className="w-full p-2 border border-gray-300 rounded"
+              type="email"
+              {...register("email", { required: "Email is required" })}
+            />
+            {errors.email && (
+              <p className="text-red-600 text-xs pt-2">
+                {errors.email.message}
+              </p>
+            )}
           </div>
-
-          <div>
-            <button
-              type="submit"
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-            >
-              Register
-            </button>
+          <div className="mb-5">
+            <label className="block text-xs mb-2">Username</label>
+            <input
+              className="w-full p-2 border border-gray-300 rounded"
+              type="text"
+              {...register("username", { required: "Username is required" })}
+            />
+            {errors.username && (
+              <p className="text-red-600 text-xs pt-2">
+                {errors.username.message}
+              </p>
+            )}
           </div>
+          <div className="mb-5">
+            <label className="block text-xs mb-2">Password</label>
+            <input
+              className="w-full p-2 border border-gray-300 rounded"
+              type="password"
+              {...register("password", { required: "Password is required" })}
+            />
+            {errors.password && (
+              <p className="text-red-600 text-xs pt-2">
+                {errors.password.message}
+              </p>
+            )}
+          </div>
+          <div className="mb-5">
+            <label className="block text-xs mb-2">Confirm Password</label>
+            <input
+              className="w-full p-2 border border-gray-300 rounded"
+              type="password"
+              {...register("confirmPassword", { required: "Please confirm your password" })}
+            />
+            {errors.confirmPassword && (
+              <p className="text-red-600 text-xs pt-2">
+                {errors.confirmPassword.message}
+              </p>
+            )}
+          </div>
+          <button
+            className="w-full py-2 px-3 text-white bg-indigo-500 rounded mt-4 hover:bg-indigo-600"
+            type="submit"
+          >
+            Register
+          </button>
         </form>
       </div>
     </div>

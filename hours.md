@@ -19,6 +19,7 @@
 | 20.5.2024 | 3    | Simplify profile page                                            |
 | 21.5.2024 | 1    | GridSlider mod                                                   |
 | 2.6.2024  | 1    | Refactor login page                                              |
-| 16.6.2024  | 1    | Refactor login page                                              |
+| 16.6.2024  | 2    | Refactor register page and 404                                  |
+| 16.6.2024  | 1    | Settigns page button and settings                               |
 
 | Sum | x | |

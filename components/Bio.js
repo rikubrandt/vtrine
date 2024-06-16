@@ -1,4 +1,15 @@
+import React, { useContext } from "react";
+import { useRouter } from "next/router";
+import { UserContext } from "../lib/context";
+
 function Bio({ user, posts }) {
+  const router = useRouter();
+  const { user: currentUser } = useContext(UserContext);
+
+  const goToSettings = () => {
+    router.push("/settings");
+  };
+
   return (
     <div className="p-2">
       <figure className="flex flex-wrap bg-white rounded-xl p-8 md:p-0 items-start">
@@ -7,7 +18,7 @@ function Bio({ user, posts }) {
           src={user.image ? user.image : "/placeholder.jpg"}
           alt="profile picture"
         />
-        <div className="flex flex-col justify-between ml-4">
+        <div className="flex flex-col justify-between ml-4 flex-grow">
           <figcaption className="font-medium">
             <div className="text-black font-bold">{user.name}</div>
             <div className="text-slate-700">{user.username}</div>
@@ -16,6 +27,16 @@ function Bio({ user, posts }) {
             <p className="text-lg font-normal">{user.bio}</p>
           </blockquote>
         </div>
+        {currentUser && currentUser.uid === user.uid && (
+          <div className="ml-auto m-1">
+            <button
+              className="bg-gray-300 hover:bg-gray-400 text-gray-800 py-2 px-4 rounded"
+              onClick={goToSettings}
+            >
+              Edit
+            </button>
+          </div>
+        )}
       </figure>
     </div>
   );

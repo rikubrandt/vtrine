@@ -22,6 +22,13 @@ function RegisterPage() {
   const handleRegister = async (data) => {
     const { email, username, password, confirmPassword } = data;
 
+    if (username.includes(' ')) {
+        setError("username", {
+          type: "manual",
+          message: "Username cannot contain spaces",
+        });
+        return;
+      }
     if (password !== confirmPassword) {
       setError("confirmPassword", {
         type: "manual",

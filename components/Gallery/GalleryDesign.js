@@ -20,9 +20,9 @@ import { GalleryGrid } from "./GalleryGrid";
 import { SortableGalleryPhoto } from "./SortableGalleryPhoto";
 import { GalleryPhoto } from "./GalleryPhoto";
 
-const GalleryDesign = ({ photos }) => {
+export const GalleryDesign = ({ photos, selectedPhotos, onUpdateSelected }) => {
   const [items, setItems] = useState(photos);
-  const [selected, setSelected] = useState(generatePlaceholders(10));
+  const [selected, setSelected] = useState(generatePlaceholders(13));
   const [activeId, setActiveId] = useState(null);
   const sensors = useSensors(useSensor(MouseSensor), useSensor(TouchSensor));
   const activeItem = items.find((item) => item.id === activeId);
@@ -32,7 +32,7 @@ const GalleryDesign = ({ photos }) => {
   };
 
   return (
-    <>
+    <div className="grid grid-cols-1">
       <DndContext
         sensors={sensors}
         collisionDetection={closestCenter}
@@ -40,52 +40,51 @@ const GalleryDesign = ({ photos }) => {
         onDragEnd={handleDragEnd}
         onDragCancel={handleDragCancel}
       >
-        <SortableContext
-          id="init"
-          items={items}
-          strategy={rectSwappingStrategy}
-        >
-          <GalleryGrid columns={4}>
-            {items.map((item, index) => (
-              <SortableGalleryPhoto
-                key={item.id}
-                url={item.downloadURL}
-                index={index}
-                id={item.id}
-              />
-            ))}
-          </GalleryGrid>
-        </SortableContext>
-
-        <SortableContext
-          id="selected"
-          items={selected}
-          strategy={rectSwappingStrategy}
-        >
-          <GalleryGrid columns={4}>
-            {selected.map((item, index) => {
-              return (
+        <div className="lg:h-[450px] h-80 overflow-y-auto">
+          <SortableContext
+            id="init"
+            items={items}
+            strategy={rectSwappingStrategy}
+          >
+            <GalleryGrid columns={4}>
+              {items.map((item, index) => (
                 <SortableGalleryPhoto
-                  key={index}
-                  url={item?.downloadURL || "placeholder.png"} // Fallback to placeholder image if there's no downloadURL
-                  index={index}
+                  key={item.id}
+                  url={item.downloadURL}
                   id={item.id}
                 />
-              );
-            })}
-          </GalleryGrid>
-        </SortableContext>
+              ))}
+            </GalleryGrid>
+          </SortableContext>
+        </div>
 
+        <div>
+          <SortableContext
+            id="selected"
+            items={selected}
+            strategy={rectSwappingStrategy}
+          >
+            <GalleryGrid columns={4}>
+              {selected.map((item, index) => {
+                return (
+                  <SortableGalleryPhoto
+                    key={item.id}
+                    url={item?.downloadURL || "placeholder.png"} // Fallback to placeholder image if there's no downloadURL
+                    index={index}
+                    id={item.id}
+                  />
+                );
+              })}
+            </GalleryGrid>
+          </SortableContext>
+        </div>
         <DragOverlay adjustScale={true} dropAnimation={dropAnimation}>
           {activeItem ? (
-            <GalleryPhoto
-              url={activeItem.downloadURL}
-              index={items.indexOf(activeId)}
-            />
+            <GalleryPhoto url={activeItem.downloadURL} id={activeItem.id} />
           ) : null}
         </DragOverlay>
       </DndContext>
-    </>
+    </div>
   );
 
   function handleDragStart(event) {
@@ -95,44 +94,46 @@ const GalleryDesign = ({ photos }) => {
 
   function handleDragEnd(event) {
     const { active, over } = event;
-    console.log(active, over);
+
     // If there's no drop target, do nothing.
     if (!over) {
       setActiveId(null);
       return;
     }
 
-    // Determine the source and target contexts.
     const sourceIsItems = items.some((item) => item.id === active.id);
-    const targetIsItems = items.some((item) => item.id === over.id);
     const targetIsPlaceholder = over.id.startsWith("placeholder-");
+    const overItemInSelected = selected.some((item) => item.id === over.id);
+
+    // Get the entire activeItem from the items array
+    const activeItem = items.find((item) => item.id === active.id);
 
     // Dragging from `items` to replace `placeholder` in `selected`
     if (sourceIsItems && targetIsPlaceholder) {
       setSelected((prev) => {
         const selectedIndex = prev.findIndex((item) => item.id === over.id);
         const updatedSelection = [...prev];
-        updatedSelection[selectedIndex] = activeItem; // Replace the placeholder with the actual image
+        updatedSelection[selectedIndex] = {
+          ...activeItem,
+        };
         return updatedSelection;
       });
 
       // Remove the dragged item from the items list
       setItems((prev) => prev.filter((item) => item.id !== active.id));
     }
-    // Reorder within the items context
-    else if (sourceIsItems && targetIsItems) {
-      setItems((prev) => {
-        const oldIndex = prev.findIndex((item) => item.id === active.id);
-        const newIndex = prev.findIndex((item) => item.id === over.id);
-        return arrayMove(prev, oldIndex, newIndex);
-      });
-    }
-    // Reorder within the selected context
-    else if (!sourceIsItems && !targetIsItems && !targetIsPlaceholder) {
+    // Swap within the `selected` context
+    else if (!sourceIsItems && overItemInSelected) {
       setSelected((prev) => {
         const oldIndex = prev.findIndex((item) => item.id === active.id);
         const newIndex = prev.findIndex((item) => item.id === over.id);
-        return arrayMove(prev, oldIndex, newIndex);
+        const updatedSelection = [...prev];
+
+        const temporaryItem = updatedSelection[oldIndex];
+        updatedSelection[oldIndex] = updatedSelection[newIndex];
+        updatedSelection[newIndex] = temporaryItem;
+
+        return updatedSelection;
       });
     }
 
@@ -143,8 +144,6 @@ const GalleryDesign = ({ photos }) => {
     setActiveId(null);
   }
 };
-
-export default GalleryDesign;
 
 const generatePlaceholders = (count) => {
   return Array.from({ length: count }).map(() => ({

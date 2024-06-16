@@ -3,6 +3,7 @@ import { getUserAndPostsByUID, firestore } from "../lib/firebase";
 import BoardSectionList from "./BoardSectionList";
 import SelectPosts from "./SelectPosts";
 import GridSlider from "./GridSlider";
+import { GalleryDesign } from "./Gallery/GalleryDesign";
 function Design() {
   const [userData, setUserData] = useState({
     user: null,
@@ -31,7 +32,6 @@ function Design() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     console.log(userData.user);
-    // Ensure user is signed in
     if (!userData.user) {
       console.error("User is not signed in.");
       return;
@@ -68,23 +68,27 @@ function Design() {
             <option value="grid">Grid</option>
           </select>
         </div>
+
         {designType && (
+          <div className="mb-4">
+            <label
+              className="block text-gray-700 text-sm font-bold mb-2"
+              htmlFor="title"
+            >
+              Title
+            </label>
+            <input
+              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+              id="title"
+              type="text"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+            />
+          </div>
+        )}
+
+        {designType == "slider" && (
           <>
-            <div className="mb-4">
-              <label
-                className="block text-gray-700 text-sm font-bold mb-2"
-                htmlFor="title"
-              >
-                Title
-              </label>
-              <input
-                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                id="title"
-                type="text"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-              />
-            </div>
             {selectedPosts.length === 0 ? (
               <div className="lg:h-[280px] h-[110px] w-full flex items-center justify-center bg-gray-200 text-2xl font-semibold text-gray-700">
                 Select posts
@@ -99,6 +103,7 @@ function Design() {
                 onSelectedPostsChange={handleSelectedPosts}
               />
             )}
+
             <button
               className="mt-6 px-4 py-2 bg-blue-500 text-white"
               onClick={handleSubmit}
@@ -106,6 +111,15 @@ function Design() {
               Create vitrine
             </button>
           </>
+        )}
+        {designType == "cluster" && (
+          <div>
+            <GalleryDesign
+              photos={userData.posts}
+              selectedPhotos={selectedPosts}
+              onSelectedPostsChange={handleSelectedPosts}
+            />
+          </div>
         )}
       </form>
     </div>

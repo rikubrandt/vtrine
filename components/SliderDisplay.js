@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { firestore } from "../lib/firebase"; // adjust path accordingly
+import { firestore } from "../lib/firebase";
 import GridSlider from "./GridSlider";
 
 const SliderDisplay = ({ userId }) => {

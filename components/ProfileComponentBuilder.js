@@ -17,7 +17,13 @@ const ProfileComponentBuilder = ({ userId }) => {
   const renderDisplay = (display) => {
     console.log(display);
     if (display.designType === "slider") {
-      return <GridSlider key={display.id} posts={display.selectedPosts} />;
+      return (
+        <GridSlider
+          key={display.id}
+          title={display.title}
+          posts={display.selectedPosts}
+        />
+      );
     }
     return null;
   };

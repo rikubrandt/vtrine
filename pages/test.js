@@ -2,8 +2,9 @@ import React, { useState, useEffect } from "react";
 import { firebase, getUserWithUsername, postToJSON } from "../lib/firebase";
 import GridSlider from "../components/GridSlider";
 import AuthCheck from "../components/AuthCheck";
-import PhotoGrid from "../components/PhotoGrid";
+import Test from "../components/Test";
 import Layout from "../components/Layout";
+import GalleryDesign from "../components/Gallery/GalleryDesign";
 export async function getServerSideProps() {
   const username = "riku";
 
@@ -27,12 +28,9 @@ export async function getServerSideProps() {
   };
 }
 
-function Test({ user, posts }) {
-  return (
-    <Layout>
-      <PhotoGrid initialPhotos={posts} />;
-    </Layout>
-  );
+function Tester({ user, posts }) {
+  console.log(posts);
+  return <Test images={posts} />;
 }
 
-export default Test;
+export default Tester;

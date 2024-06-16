@@ -4,7 +4,7 @@ import { CSS } from "@dnd-kit/utilities";
 
 import { GalleryPhoto } from "./GalleryPhoto";
 
-export const SortableGalleryPhoto = ({ url, id }) => {
+export const SortableGalleryPhoto = ({ url, id, index }) => {
   const sortable = useSortable({ id: id });
   const {
     attributes,
@@ -25,6 +25,7 @@ export const SortableGalleryPhoto = ({ url, id }) => {
       ref={setNodeRef}
       style={style}
       url={url || "imageplaceholder.png"}
+      index={index}
       {...attributes}
       {...listeners}
     />

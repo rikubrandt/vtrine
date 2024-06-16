@@ -7,6 +7,7 @@ import {
   HeartIcon,
   PaperAirplaneIcon,
   Bars3Icon,
+  ArchiveBoxIcon,
 } from "@heroicons/react/24/outline";
 import { HomeIcon } from "@heroicons/react/24/solid";
 import { UserContext } from "../lib/context";
@@ -74,7 +75,7 @@ function Header() {
         <div className="relative hidden lg:inline-grid w-24 cursor-pointer">
           <Link href="/">
             <Image
-              src="/logoshit.png"
+              src="/logoshit.png?key=123"
               fill
               style={{ objectFit: "contain" }}
               alt="Logo"
@@ -85,7 +86,7 @@ function Header() {
           <Link href="/">
             <Image
               alt="Logo"
-              src="/logomini.png"
+              src="/logomini.png?key=123"
               fill
               style={{ objectFit: "contain" }}
             />
@@ -137,6 +138,9 @@ function Header() {
               </Link>
               <Link href="/notifications">
                 <HeartIcon className="navBtn" />
+              </Link>
+              <Link href="/design">
+                <ArchiveBoxIcon className="navBtn" />
               </Link>
 
               <Link href="/[username]" as={`/${username}`}>

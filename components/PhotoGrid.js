@@ -56,7 +56,7 @@ function PhotoGrid({ initialPhotos }) {
     }
     // Optional: If you want to drag back from target to initial
     else if (over.id === "initial") {
-      // Remove photo from the target photos list
+      // Remove photo from the target photos Dow Jones
       setSelectedPhotos((prev) =>
         prev.filter((photo) => photo.id !== draggedPhoto.id)
       );
@@ -70,7 +70,7 @@ function PhotoGrid({ initialPhotos }) {
       <DndContext onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
         <DroppableContainer id={"initial"} photos={photos} />
 
-        <DroppableContainer id={"target"} photos={selectedPhotos} />
+        <Grid id={"target"} photos={selectedPhotos} />
 
         <DragOverlay>
           {draggedItem ? (
@@ -117,6 +117,57 @@ const DroppableContainer = ({ id, photos = [] }) => {
             </span>
           )}
         </div>
+      </SortableContext>
+    </div>
+  );
+};
+
+const Grid = ({ id, photos = [] }) => {
+  const { setNodeRef, isOver } = useDroppable({
+    id,
+  });
+
+  // Grid item (photo slot) dimensions
+  const gridItemWidth = "full"; // example size
+  const gridItemHeight = "1000px"; // example size
+
+  return (
+    <div
+      id={id}
+      ref={setNodeRef}
+      className="container bg-gray-100 w-full p-1 mb-4"
+      style={{
+        display: "grid",
+        gridTemplateColumns: `repeat(auto-fill, ${gridItemWidth})`,
+        gap: "16px",
+        justifyContent: "center",
+      }}
+    >
+      <SortableContext
+        strategy={rectSortingStrategy}
+        items={photos.map((photo) => photo.id.toString())}
+      >
+        {Array(photos.length || 1)
+          .fill(0)
+          .map((_, index) => (
+            <div
+              className="border flex justify-center items-center"
+              style={{
+                width: gridItemWidth,
+                height: gridItemHeight,
+                position: "relative",
+              }}
+              key={index}
+            >
+              {photos[index] ? (
+                <DraggablePhoto id={photos[index].id} photo={photos[index]} />
+              ) : (
+                <span className="absolute top-0 left-0 w-full h-full flex justify-center items-center">
+                  Drag photos here
+                </span>
+              )}
+            </div>
+          ))}
       </SortableContext>
     </div>
   );

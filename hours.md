@@ -21,5 +21,6 @@
 | 2.6.2024  | 1    | Refactor login page                                              |
 | 16.6.2024  | 2    | Refactor register page and 404                                  |
 | 16.6.2024  | 1    | Settigns page button and settings                               |
+| 2.7.2024   | 2    | Fix hydration bug.                                              |
 
 | Sum | x | |

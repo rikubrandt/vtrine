@@ -24,5 +24,6 @@
 | 2.7.2024   | 2   | Fix hydration bug.                                               |
 | 2.7.2024   | 1   | Discover page                                                    |
 | 3.7.2024   | 1   | Suggestions page to show actual users                            |
+| 3.7.2024   | 3   | Search functionality for users                                   |
 
 | Sum | x | |

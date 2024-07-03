@@ -23,5 +23,6 @@
 | 16.6.2024  | 1   | Settigns page button and settings                                |
 | 2.7.2024   | 2   | Fix hydration bug.                                               |
 | 2.7.2024   | 1   | Discover page                                                    |
+| 3.7.2024   | 1   | Suggestions page to show actual users                            |
 
 | Sum | x | |

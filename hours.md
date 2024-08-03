@@ -25,5 +25,9 @@
 | 2.7.2024   | 1   | Discover page                                                    |
 | 3.7.2024   | 1   | Suggestions page to show actual users                            |
 | 3.7.2024   | 3   | Search functionality for users                                   |
+| 4.7.2024   | 2   | Debugging firebase storage authentication                        |
+| 8.7.2024   | 2   | Making the uploading of images better                            |
+| 3.8.2024   | 3   | Uploading now uses nextjs api                                    |
+
 
 | Sum | x | |

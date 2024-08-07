@@ -28,6 +28,7 @@
 | 4.7.2024   | 2   | Debugging firebase storage authentication                        |
 | 8.7.2024   | 2   | Making the uploading of images better                            |
 | 3.8.2024   | 3   | Uploading now uses nextjs api                                    |
+| 7.8.2024   | 3   | One place to create (maybe 4 time I change something here :S)    |
 
 
 | Sum | x | |

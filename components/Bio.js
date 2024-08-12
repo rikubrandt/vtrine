@@ -2,7 +2,7 @@ import React, { useContext } from "react";
 import { useRouter } from "next/router";
 import { UserContext } from "../lib/context";
 
-function Bio({ user, posts }) {
+function Bio({ user }) {
   const router = useRouter();
   const { user: currentUser } = useContext(UserContext);
 

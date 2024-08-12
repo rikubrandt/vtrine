@@ -1,14 +1,14 @@
 import React from "react";
 import Layout from "./Layout";
 import Bio from "./Bio";
-import ProfileComponentBuilder from "./ProfileComponentBuilder";
+import ProfileTab from "./ProfileTab";
 
 function Profile({ user, posts }) {
   return (
     <Layout>
-      <Bio user={user} posts={posts} />
+      <Bio user={user} />
       <div className="my-7 border rounded-sm">
-        <ProfileComponentBuilder userId={user.uid} />
+        <ProfileTab userId={user.uid} posts={posts} />
       </div>
     </Layout>
   );

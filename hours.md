@@ -29,6 +29,8 @@
 | 8.7.2024   | 2   | Making the uploading of images better                            |
 | 3.8.2024   | 3   | Uploading now uses nextjs api                                    |
 | 7.8.2024   | 3   | One place to create (maybe 4 time I change something here :S)    |
+| 8.8.2024   | 3   | Skeleton for timeline, map and all tabs. Change profiletab       |
+| 12.8.2024  | 3   | Timeline component finishing                                     |
 
 
 | Sum | x | |

@@ -81,3 +81,59 @@
   display: block;
   width: 100%;
 }
+
+
+
+.timeline {
+    position: relative;
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+  
+  .timeline-snap-icon {
+    display: flex;
+    flex-direction: column;
+    position: relative;
+  }
+  
+  .timeline-snap-icon li {
+    display: flex;
+    align-items: center;
+    position: relative;
+  }
+  
+  .timeline-snap-icon li::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    width: 2px;
+    height: 100%;
+    background-color: #e5e7eb;
+  }
+  
+  .timeline-middle {
+    position: relative;
+    flex-shrink: 0;
+    width: 3rem;
+    height: 3rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #e5e7eb;
+    border-radius: 9999px;
+    z-index: 10;
+    margin-left: -1.5rem;
+    margin-right: -1.5rem;
+  }
+  
+  .timeline-start {
+    flex: 1;
+    padding-right: 1.5rem;
+  }
+  
+  .timeline-end {
+    flex: 1;
+    padding-left: 1.5rem;
+  }
+  
+  

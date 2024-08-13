@@ -5,6 +5,9 @@ import Loader from "./Loader";
 import { auth, storage } from "../lib/firebase";
 import { v4 as uuidv4 } from 'uuid';
 import { SortableContainer, SortableElement, arrayMove } from 'react-sortable-hoc';
+import dynamic from 'next/dynamic';
+
+const AddressAutofill = dynamic(() => import('@mapbox/search-js-react').then(mod => mod.AddressAutofill), { ssr: false });
 
 const SortableItem = SortableElement(({ file, onDelete }) => (
   <div className="relative inline-block mx-2">
@@ -43,7 +46,7 @@ function Upload() {
   const [files, setFiles] = useState([]);
   const [title, setTitle] = useState("");
   const [caption, setCaption] = useState("");
-  const [location, setLocation] = useState("");
+  const [location, setLocation] = useState({ place_name: "", lat: null, lng: null });
   const [date, setDate] = useState("");
   const [hidden, setHidden] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -91,6 +94,17 @@ function Upload() {
     setFiles(arrayMove(files, oldIndex, newIndex));
   };
 
+  const fetchCoordinates = async (placeName) => {
+    const response = await fetch(
+      `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(
+        placeName
+      )}.json?access_token=${process.env.NEXT_PUBLIC_MAPBOX_APIKEY}`
+    );
+    const data = await response.json();
+    const [lng, lat] = data.features[0]?.center || [null, null];
+    return { lat, lng };
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null);
@@ -103,6 +117,8 @@ function Upload() {
     setUploading(true);
 
     try {
+      const { lat, lng } = await fetchCoordinates(location.place_name);
+
       const token = await auth.currentUser.getIdToken(true);
       const downloadURLs = files.map(file => file.url);
 
@@ -116,7 +132,11 @@ function Upload() {
           metadata: {
             title,
             caption,
-            location,
+            location: {
+              place_name: location.place_name,
+              lat,
+              lng,
+            },
             date,
             hidden,
             downloadURLs,
@@ -172,14 +192,14 @@ function Upload() {
               <Loader show={uploading} />
             </div>
             {files.length > 0 && (
-                <>
-              <SortableList items={files} onDelete={handleDelete} onSortEnd={onSortEnd} axis="x" pressDelay={200} />
-              <p
-                className="mt-1 text-sm text-gray-500 dark:text-gray-300"
-                id="file_input_help"
-              >
-                Hold and drag to rearrange.
-              </p>
+              <>
+                <SortableList items={files} onDelete={handleDelete} onSortEnd={onSortEnd} axis="x" pressDelay={200} />
+                <p
+                  className="mt-1 text-sm text-gray-500 dark:text-gray-300"
+                  id="file_input_help"
+                >
+                  Hold and drag to rearrange.
+                </p>
               </>
             )}
             <label className="block mt-6">
@@ -193,12 +213,15 @@ function Upload() {
             </label>
             <label className="block mt-6">
               <span className="text-gray-700">Location</span>
-              <input
-                type="text"
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
-                placeholder="Hacker Way 1"
-                onChange={(e) => setLocation(e.target.value)}
-              />
+              <AddressAutofill accessToken={process.env.NEXT_PUBLIC_MAPBOX_APIKEY}>
+                <input
+                  type="text"
+                  name="location"
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                  placeholder="Hacker Way 1"
+                  onChange={(e) => setLocation({ place_name: e.target.value })}
+                />
+              </AddressAutofill>
             </label>
             <label className="block mt-6">
               <span className="text-gray-700">Date</span>

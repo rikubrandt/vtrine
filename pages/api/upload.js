@@ -27,9 +27,13 @@ export default async function handler(req, res) {
       id: postRef.id,
       title: metadata.title,
       caption: metadata.caption,
-      location: metadata.location,
+      location: {
+        place_name: metadata.location.place_name,
+        lat: metadata.location.lat,
+        lng: metadata.location.lng,
+      },
       date: metadata.date,
-      hidden: metadata.visible,
+      hidden: metadata.hidden,
       heartCount: metadata.heartCount || 0,
       files: metadata.downloadURLs,
       createdAt: admin.firestore.FieldValue.serverTimestamp(),
@@ -40,4 +44,4 @@ export default async function handler(req, res) {
     console.error("Error creating post:", error);
     res.status(500).json({ error: "Error creating post" });
   }
-}   
+}

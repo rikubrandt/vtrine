@@ -47,7 +47,7 @@ const Timeline = ({ displays }) => {
                         </time>
                       </div>
                       <div className="text-sm font-medium text-gray-500 mb-1">
-                        {display.location}
+                        {display.location?.place_name} 
                       </div>
                       <div className="text-slate-500">{display.caption}</div>
                       <div className="mt-2 text-right text-gray-400">
@@ -56,9 +56,9 @@ const Timeline = ({ displays }) => {
                         </span>
                       </div>
                       {/* GridSlider */}
-                      {display.downloadURLs && display.downloadURLs.length > 0 && (
+                      {display.files && display.files.length > 0 && (
                         <div className="mt-4">
-                          <GridSlider posts={display.downloadURLs.map((url, i) => ({
+                          <GridSlider posts={display.files.map((url, i) => ({
                             id: `${display.id}-${i}`,
                             downloadURL: url,
                           }))} title={display.title} />

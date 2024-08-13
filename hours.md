@@ -31,6 +31,7 @@
 | 7.8.2024   | 3   | One place to create (maybe 4 time I change something here :S)    |
 | 8.8.2024   | 3   | Skeleton for timeline, map and all tabs. Change profiletab       |
 | 12.8.2024  | 3   | Timeline component finishing                                     |
+| 13.8.2024  | 1   | Timeline Shows multiple pics in gridslider and supports Modal    |
 
 
 | Sum | x | |

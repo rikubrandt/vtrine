@@ -19,20 +19,21 @@
 | 20.5.2024 | 3    | Simplify profile page                                            |
 | 21.5.2024 | 1    | GridSlider mod                                                   |
 | 2.6.2024  | 1    | Refactor login page                                              |
-| 16.6.2024  | 2   | Refactor register page and 404                                   |
-| 16.6.2024  | 1   | Settigns page button and settings                                |
-| 2.7.2024   | 2   | Fix hydration bug.                                               |
-| 2.7.2024   | 1   | Discover page                                                    |
-| 3.7.2024   | 1   | Suggestions page to show actual users                            |
-| 3.7.2024   | 3   | Search functionality for users                                   |
-| 4.7.2024   | 2   | Debugging firebase storage authentication                        |
-| 8.7.2024   | 2   | Making the uploading of images better                            |
-| 3.8.2024   | 3   | Uploading now uses nextjs api                                    |
-| 7.8.2024   | 3   | One place to create (maybe 4 time I change something here :S)    |
-| 8.8.2024   | 3   | Skeleton for timeline, map and all tabs. Change profiletab       |
-| 12.8.2024  | 3   | Timeline component finishing                                     |
-| 13.8.2024  | 1   | Timeline Shows multiple pics in gridslider and supports Modal    |
-| 13.8.2024  | 3   | User can add address and we get the lat long and add suggestions |
+| 16.6.2024 | 2   | Refactor register page and 404                                    |
+| 16.6.2024 | 1   | Settigns page button and settings                                 |
+| 2.7.2024  | 2   | Fix hydration bug.                                                |
+| 2.7.2024  | 1   | Discover page                                                     |
+| 3.7.2024  | 1   | Suggestions page to show actual users                             |
+| 3.7.2024  | 3   | Search functionality for users                                    |
+| 4.7.2024  | 2   | Debugging firebase storage authentication                         |
+| 8.7.2024  | 2   | Making the uploading of images better                             |
+| 3.8.2024  | 3   | Uploading now uses nextjs api                                     |
+| 7.8.2024  | 3   | One place to create (maybe 4 time I change something here :S)     |
+| 8.8.2024  | 3   | Skeleton for timeline, map and all tabs. Change profiletab        |
+| 12.8.2024 | 3   | Timeline component finishing                                      |
+| 13.8.2024 | 1   | Timeline Shows multiple pics in gridslider and supports Modal     |
+| 13.8.2024 | 3   | User can add address and we get the lat long and add suggestions  |
+| 18.8.2024 | 4   | Map component base with mapbox, most time used for deciding what map provider to use. |
 
-
+ 
 | Sum | x | |

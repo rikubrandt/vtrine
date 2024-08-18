@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import fetchDisplays from "../lib/fetchDisplays";
-import Map from "./Map";
+import MapDisplay from "./Map";
 import Timeline from "./Timeline";
 import AllComponent from "./AllComponent";
 
@@ -18,7 +18,7 @@ const ProfileTab = ({ userId, posts }) => {
   const renderActiveTab = () => {
     switch (activeTab) {
       case "Map":
-        return <Map />;
+        return <MapDisplay displays={displays} />;
       case "Timeline":
         return <Timeline displays={displays} />;
       case "All":

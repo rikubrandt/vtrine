@@ -29,8 +29,8 @@ export default async function handler(req, res) {
       caption: metadata.caption,
       location: {
         place_name: metadata.location.place_name,
-        lat: metadata.location.lat,
         lng: metadata.location.lng,
+        lat: metadata.location.lat,
       },
       date: metadata.date,
       hidden: metadata.hidden,

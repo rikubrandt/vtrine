@@ -102,7 +102,7 @@ function Upload() {
     );
     const data = await response.json();
     const [lng, lat] = data.features[0]?.center || [null, null];
-    return { lat, lng };
+    return { lat, lng }; // Ensure this returns latitude and longitude in the correct order
   };
 
   const handleSubmit = async (e) => {

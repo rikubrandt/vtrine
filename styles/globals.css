@@ -137,3 +137,53 @@
   }
   
   
+
+  .navigation-wrapper {
+    position: relative;
+    max-width: 600px;
+    margin: auto;
+  }
+  
+  .arrow {
+    position: absolute;
+    top: 50%;
+    width: 30px;
+    height: 30px;
+    fill: #000;
+    cursor: pointer;
+    z-index: 10;
+  }
+  
+  .arrow--left {
+    left: 10px;
+    transform: translateY(-50%);
+  }
+  
+  .arrow--right {
+    right: 10px;
+    transform: translateY(-50%);
+  }
+  
+  .arrow--disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+  }
+  
+  .dots {
+    display: flex;
+    justify-content: center;
+    margin-top: 10px;
+  }
+  
+  .dot {
+    width: 10px;
+    height: 10px;
+    background: #ccc;
+    border-radius: 50%;
+    margin: 0 5px;
+    cursor: pointer;
+  }
+  
+  .dot.active {
+    background: #000;
+  }

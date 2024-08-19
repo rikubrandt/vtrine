@@ -1,17 +1,28 @@
 import React, { useState } from 'react';
 import Map, { Marker } from 'react-map-gl';
+import GridSliderModal from './GridSliderModal';
 
 const MapDisplay = ({ displays }) => {
   const [viewport, setViewport] = useState({
-    latitude: 39.5,
-    longitude: -98.35, // Center of the US
+    latitude: 57,
+    longitude: 18,
     zoom: 3,
     width: '100%',
     height: '400px',
   });
 
+  const [selectedDisplay, setSelectedDisplay] = useState(null);
+
   const handleViewportChange = (newViewport) => {
     setViewport(newViewport);
+  };
+
+  const handleMarkerClick = (display) => {
+    setSelectedDisplay(display);
+  };
+
+  const handleCloseModal = () => {
+    setSelectedDisplay(null);
   };
 
   return (
@@ -33,14 +44,23 @@ const MapDisplay = ({ displays }) => {
               key={display.id}
               latitude={display.location.lat}
               longitude={display.location.lng}
-              offsetLeft={-20}
-              offsetTop={-10}
+              offsetLeft={0}
+              offsetTop={0}
             >
-              <div>📍</div>
+              <div
+                className="cursor-pointer"
+                onClick={() => handleMarkerClick(display)}
+              >
+                📍
+              </div>
             </Marker>
           ))}
         
       </Map>
+
+      {selectedDisplay && (
+        <GridSliderModal post={selectedDisplay} onClose={handleCloseModal} />
+      )}
     </div>
   );
 };

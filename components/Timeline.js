@@ -58,7 +58,7 @@ const Timeline = ({ displays }) => {
                       {/* GridSlider */}
                       {display.files && display.files.length > 0 && (
                         <div className="mt-4">
-                          <GridSlider posts={display.files.map((url, i) => ({
+                          <GridSlider post={display.files.map((url, i) => ({
                             id: `${display.id}-${i}`,
                             downloadURL: url,
                           }))} title={display.title} />

@@ -5,7 +5,6 @@ module.exports = {
     "./pages/**/*.{js,ts,jsx,tsx,mdx}",
     "./components/**/*.{js,ts,jsx,tsx,mdx}",
 
-    // Or if using `src` directory:
     "./src/**/*.{js,ts,jsx,tsx,mdx}",
   ],
   theme: {
@@ -18,6 +17,11 @@ module.exports = {
         "vitrine-secondary-2": "#CAB8FF",
         "vitrine-hover": "#005377",
         "vitrine-error": "#E56155",
+        "wenge": "#7a6563ff",
+        "gunmetal": "#202c39ff",
+        "sage": "#b4c292ff",
+        "periwinkle": "#d4dcffff",
+        "atomic-tangerine": "#faaa8dff",
       },
     },
   },

@@ -36,6 +36,7 @@
 | 18.8.2024 | 4   | Map component base with mapbox, most time used for deciding what map provider to use. |
 | 19.8.2024 | 2   | Map marker click modal progress. GridSlider update to use arrows. |
 | 23.8.2024 | 1   | New bio, better for mobile. Cleaner maybe?                        |
+|           | 2   | Modal for Map now way better. Need to fix that for timeline also. |
 
  
 | Sum | x | |

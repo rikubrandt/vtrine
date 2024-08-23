@@ -22,12 +22,14 @@ const GridSlider = ({ post, title }) => {
       <div ref={sliderRef} className="keen-slider">
         {post.map((image, index) => (
           <div key={image.id} className="keen-slider__slide">
-            <img
-              src={image.downloadURL}
-              alt={`Post ${index + 1}`}
-              className="w-full h-48 sm:h-64 md:h-64 lg:h-64 xl:h-64 object-cover"
-              draggable={false}
-            />
+            <div className="w-full h-64 md:h-96 lg:h-[30rem] xl:h-[36rem] bg-gray-200 flex items-center justify-center overflow-hidden">
+              <img
+                src={image.downloadURL}
+                alt={`Post ${index + 1}`}
+                className="w-full h-full object-cover"
+                draggable={false}
+              />
+            </div>
           </div>
         ))}
       </div>

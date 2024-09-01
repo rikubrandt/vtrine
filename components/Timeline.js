@@ -5,71 +5,63 @@ const Timeline = ({ displays }) => {
   const formatDate = (timestamp) => {
     if (!timestamp) return '';
     const date = new Date(timestamp.seconds * 1000);
-    const options = { year: "numeric", month: "long", day: "numeric", hour: 'numeric', minute: 'numeric', second: 'numeric', timeZoneName: 'short' };
+    const options = { year: "numeric", month: "long", day: "numeric" };
     return date.toLocaleDateString(undefined, options);
+  };
+
+  const formatTimeRange = (startTime, endTime) => {
+    if (!startTime) return '';
+    const formattedStartTime = formatDate(startTime);
+    const formattedEndTime = endTime ? ` - ${formatDate(endTime)}` : '';
+    return `${formattedStartTime}${formattedEndTime}`;
   };
 
   return (
     <section className="relative min-h-screen flex flex-col justify-center bg-slate-50 overflow-hidden">
-      <div className="w-full max-w-6xl mx-auto px-4 md:px-6 py-24">
-        <div className="flex flex-col justify-center divide-y divide-slate-200 [&>*]:py-16">
-          <div className="w-full max-w-3xl mx-auto">
-            <div className="space-y-8 relative before:absolute before:inset-0 before:ml-5 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-transparent before:via-slate-300 before:to-transparent">
-              {displays
-                .filter(display => display.createdAt) // Only render displays with a date
-                .map((display, index) => (
-                  <div
-                    key={display.id}
-                    className={`relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group ${
-                      display.isActive ? "is-active" : ""
-                    }`}
-                  >
-                    {/* Icon */}
-                    <div className="flex items-center justify-center w-10 h-10 rounded-full border border-white bg-slate-300 group-[.is-active]:bg-emerald-500 text-slate-500 group-[.is-active]:text-emerald-50 shadow shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2">
-                      <svg
-                        className="fill-current"
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="12"
-                        height="10"
-                      >
-                        <path
-                          fillRule="nonzero"
-                          d="M10.422 1.257 4.655 7.025 2.553 4.923A.916.916 0 0 0 1.257 6.22l2.75 2.75a.916.916 0 0 0 1.296 0l6.415-6.416a.916.916 0 0 0-1.296-1.296Z"
-                        />
-                      </svg>
+      <div className="w-full max-w-7xl mx-auto px-4 md:px-6 py-24">
+        <h3 className="text-2xl text-gray-700 font-bold mb-6 ml-3">Timeline</h3>
+        <ol className="space-y-8">
+          {displays
+            .filter(display => display.createdAt) // Only render displays with a date
+            .map((display) => (
+              <li key={display.id} className={`border-l-2 ${display.isActive ? 'border-emerald-600' : 'border-gray-300'}`}>
+                <div className="md:flex flex-start items-start">
+                  <div className={`w-6 h-6 flex items-center justify-center rounded-full -ml-3.5 ${display.isActive ? 'bg-emerald-600' : 'bg-gray-300'}`}>
+                    <svg aria-hidden="true" focusable="false" data-prefix="fas" className="text-white w-3 h-3" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512">
+                      <path fill="currentColor" d="M0 464c0 26.5 21.5 48 48 48h352c26.5 0 48-21.5 48-48V192H0v272zm64-192c0-8.8 7.2-16 16-16h288c8.8 0 16 7.2 16 16v64c0 8.8-7.2 16-16 16H80c-8.8 0-16-7.2-16-16v-64zM400 64h-48V16c0-8.8-7.2-16-16-16h-32c-8.8 0-16 7.2-16 16v48H160V16c0-8.8-7.2-16-16-16h-32c-8.8 0-16 7.2-16 16v48H48C21.5 64 0 85.5 0 112v48h448v-48c0-26.5-21.5-48-48-48z"></path>
+                    </svg>
+                  </div>
+                  <div className="block p-6 rounded-lg shadow-lg bg-gray-100 flex-grow ml-6 mb-10">
+                    <div className="text-sm font-medium text-purple-600 mb-2">
+                      {formatTimeRange(display.startTime, display.endTime) || formatDate(display.createdAt)}
                     </div>
-                    {/* Card */}
-                    <div className="w-[calc(100%-4rem)] md:w-[calc(50%-2.5rem)] bg-white p-4 rounded border border-slate-200 shadow">
-                      <div className="flex items-center justify-between space-x-2 mb-1">
-                        <div className="font-bold text-slate-900">{display.title}</div>
-                        <time className="text-xs font-medium text-indigo-500">
-                          {formatDate(display.createdAt)}
-                        </time>
+                    <div className="font-bold text-gray-800 text-xl mb-2">
+                      {display.title}
+                    </div>
+                    {display.location?.place_name && (
+                      <div className="text-sm font-medium text-gray-500 mb-2">
+                        {display.location.place_name}
                       </div>
-                      <div className="text-sm font-medium text-gray-500 mb-1">
-                        {display.location?.place_name} 
-                      </div>
-                      <div className="text-slate-500">{display.caption}</div>
-                      <div className="mt-2 text-right text-gray-400">
-                        <span className="inline-block text-sm font-semibold">
-                          ♥ {display.heartCount}
-                        </span>
-                      </div>
-                      {/* GridSlider */}
-                      {display.files && display.files.length > 0 && (
-                        <div className="mt-4">
-                          <GridSlider post={display.files.map((url, i) => ({
+                    )}
+                    <div className="text-gray-700 mb-4">
+                      {display.caption}
+                    </div>
+                    {display.files && display.files.length > 0 && (
+                      <div className="mt-4">
+                        <GridSlider
+                          post={display.files.map((url, i) => ({
                             id: `${display.id}-${i}`,
                             downloadURL: url,
-                          }))} title={display.title} />
-                        </div>
-                      )}
-                    </div>
+                          }))}
+                          title={display.title}
+                        />
+                      </div>
+                    )}
                   </div>
-                ))}
-            </div>
-          </div>
-        </div>
+                </div>
+              </li>
+            ))}
+        </ol>
       </div>
     </section>
   );

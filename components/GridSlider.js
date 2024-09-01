@@ -19,14 +19,14 @@ const GridSlider = ({ post, title }) => {
   return (
     <div className="navigation-wrapper">
       <p className="text-xl font-mono mb-4">{title}</p>
-      <div ref={sliderRef} className="keen-slider">
+      <div ref={sliderRef} className="keen-slider w-full h-full overflow-hidden">
         {post.map((image, index) => (
-          <div key={image.id} className="keen-slider__slide">
+          <div key={image.id} className="keen-slider__slide w-full">
             <div className="w-full h-64 md:h-96 lg:h-[30rem] xl:h-[36rem] bg-gray-200 flex items-center justify-center overflow-hidden">
               <img
                 src={image.downloadURL}
                 alt={`Post ${index + 1}`}
-                className="w-full h-full object-cover"
+                className="w-full h-full object-contain"
                 draggable={false}
               />
             </div>

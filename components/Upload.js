@@ -43,6 +43,7 @@ const SortableList = SortableContainer(({ items, onDelete }) => {
 });
 
 function Upload() {
+  const [step, setStep] = useState(1); // Step state: 1 for upload/edit, 2 for details
   const [files, setFiles] = useState([]);
   const [title, setTitle] = useState("");
   const [caption, setCaption] = useState("");
@@ -102,7 +103,7 @@ function Upload() {
     );
     const data = await response.json();
     const [lng, lat] = data.features[0]?.center || [null, null];
-    return { lat, lng }; // Ensure this returns latitude and longitude in the correct order
+    return { lat, lng };
   };
 
   const handleSubmit = async (e) => {
@@ -164,106 +165,133 @@ function Upload() {
     <div className="pl-10">
       {error && <p>{error}</p>}
       <form onSubmit={handleSubmit}>
-        <div className="py-12">
-          <h2 className="text-2xl font-bold">Create vitrine</h2>
-          <div className="mt-8 max-w-md">
-            <div className="grid grid-cols-1 gap-6">
-              <label
-                className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-                htmlFor="file_input"
-              >
-                Upload files
-              </label>
-              <input
-                className="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400"
-                aria-describedby="file_input_help"
-                id="file_input"
-                type="file"
-                accept="image/*,video/*"
-                multiple
-                onChange={handleFileChange}
-              />
-              <p
-                className="mt-1 text-sm text-gray-500 dark:text-gray-300"
-                id="file_input_help"
-              >
-                Upload images or videos.
-              </p>
-              <Loader show={uploading} />
-            </div>
-            {files.length > 0 && (
-              <>
-                <SortableList items={files} onDelete={handleDelete} onSortEnd={onSortEnd} axis="x" pressDelay={200} />
+        {step === 1 && (
+          <div className="py-12">
+            <h2 className="text-2xl font-bold">Upload and Edit Files</h2>
+            <div className="mt-8 max-w-md">
+              <div className="grid grid-cols-1 gap-6">
+                <label
+                  className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                  htmlFor="file_input"
+                >
+                  Upload files
+                </label>
+                <input
+                  className="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400"
+                  aria-describedby="file_input_help"
+                  id="file_input"
+                  type="file"
+                  accept="image/*,video/*"
+                  multiple
+                  onChange={handleFileChange}
+                />
                 <p
                   className="mt-1 text-sm text-gray-500 dark:text-gray-300"
                   id="file_input_help"
                 >
-                  Hold and drag to rearrange.
+                  Upload images or videos.
                 </p>
-              </>
-            )}
-            <label className="block mt-6">
-              <span className="text-gray-700">Title</span>
-              <input
-                type="text"
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
-                onChange={(e) => setTitle(e.target.value)}
-                placeholder="Title"
-              />
-            </label>
-            <label className="block mt-6">
-              <span className="text-gray-700">Location</span>
-              <AddressAutofill accessToken={process.env.NEXT_PUBLIC_MAPBOX_APIKEY}>
-                <input
-                  type="text"
-                  name="location"
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
-                  placeholder="Hacker Way 1"
-                  onChange={(e) => setLocation({ place_name: e.target.value })}
-                />
-              </AddressAutofill>
-            </label>
-            <label className="block mt-6">
-              <span className="text-gray-700">Date</span>
-              <input
-                type="date"
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
-                onChange={(e) => setDate(e.target.value)}
-              />
-            </label>
-            <label className="block mt-6">
-              <span className="text-gray-700">Caption</span>
-              <textarea
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
-                rows="3"
-                onChange={(e) => setCaption(e.target.value)}
-              ></textarea>
-            </label>
-            <div className="block mt-6">
-              <div className="mt-2">
-                <div>
-                  <label className="inline-flex items-center">
-                    <input
-                      type="checkbox"
-                      className="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-offset-0 focus:ring-indigo-200 focus:ring-opacity-50"
-                      onChange={(e) => setHidden(e.target.checked)}
-                    />
-                    <span className="ml-2">Hidden</span>
-                  </label>
-                </div>
+                <Loader show={uploading} />
+              </div>
+              {files.length > 0 && (
+                <>
+                  <SortableList items={files} onDelete={handleDelete} onSortEnd={onSortEnd} axis="x" pressDelay={200} />
+                  <p
+                    className="mt-1 text-sm text-gray-500 dark:text-gray-300"
+                    id="file_input_help"
+                  >
+                    Hold and drag to rearrange.
+                  </p>
+                </>
+              )}
+              <div className="mt-6">
+                <button
+                  type="button"
+                  className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 border border-blue-700 rounded"
+                  onClick={() => setStep(2)}
+                  disabled={files.length === 0 || uploading}
+                >
+                  Next
+                </button>
               </div>
             </div>
-            <div className="block mt-6">
-              <button
-                className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 border border-blue-700 rounded"
-                type="submit"
-                disabled={uploading}
-              >
-                Create
-              </button>
+          </div>
+        )}
+
+        {step === 2 && (
+          <div className="py-12">
+            <h2 className="text-2xl font-bold">Enter Details</h2>
+            <div className="mt-8 max-w-md">
+              <label className="block mt-6">
+                <span className="text-gray-700">Title</span>
+                <input
+                  type="text"
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                  onChange={(e) => setTitle(e.target.value)}
+                  placeholder="Title"
+                />
+              </label>
+              <label className="block mt-6">
+                <span className="text-gray-700">Location</span>
+                <AddressAutofill accessToken={process.env.NEXT_PUBLIC_MAPBOX_APIKEY}>
+                  <input
+                    type="text"
+                    name="location"
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                    placeholder="Hacker Way 1"
+                    onChange={(e) => setLocation({ place_name: e.target.value })}
+                  />
+                </AddressAutofill>
+              </label>
+              <label className="block mt-6">
+                <span className="text-gray-700">Date</span>
+                <input
+                  type="date"
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                  onChange={(e) => setDate(e.target.value)}
+                />
+              </label>
+              <label className="block mt-6">
+                <span className="text-gray-700">Caption</span>
+                <textarea
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                  rows="3"
+                  onChange={(e) => setCaption(e.target.value)}
+                ></textarea>
+              </label>
+              <div className="block mt-6">
+                <div className="mt-2">
+                  <div>
+                    <label className="inline-flex items-center">
+                      <input
+                        type="checkbox"
+                        className="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-offset-0 focus:ring-indigo-200 focus:ring-opacity-50"
+                        onChange={(e) => setHidden(e.target.checked)}
+                      />
+                      <span className="ml-2">Hidden</span>
+                    </label>
+                  </div>
+                </div>
+              </div>
+              <div className="block mt-6">
+                <button
+                  type="button"
+                  className="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 border border-gray-700 rounded mr-4"
+                  onClick={() => setStep(1)}
+                >
+                  Back
+                </button>
+                <button
+                  className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 border border-blue-700 rounded"
+                  type="submit"
+                  disabled={uploading}
+                >
+                  Create
+                </button>
+              </div>
             </div>
           </div>
-        </div>
+        )}
       </form>
     </div>
   );

@@ -37,6 +37,10 @@
 | 19.8.2024 | 2   | Map marker click modal progress. GridSlider update to use arrows. |
 | 23.8.2024 | 1   | New bio, better for mobile. Cleaner maybe?                        |
 |           | 2   | Modal for Map now way better. Need to fix that for timeline also. |
+| 25.8.2024 | 2   | Cropping of images start, little progress                         |
+| 27.8.2024 | 2   | Cropping images continues..                                       |
+| 29.8.2024 | 3   | Cropping images continues..                                       |
+| 2.9.2024  | 4   | Cropping images functionality done, tough one for sure. :S        |
 
  
 | Sum | x | |

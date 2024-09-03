@@ -16,6 +16,7 @@
     "@heroicons/react": "^2.0.18",
     "@mapbox/search-js-react": "^1.0.0-beta.22",
     "@tailwindcss/forms": "^0.5.3",
+    "array-move": "^4.0.0",
     "firebase": "^9.23.0",
     "firebase-admin": "^11.11.1",
     "keen-slider": "^6.8.6",
@@ -23,13 +24,13 @@
     "next": "^13.4.7",
     "pica": "^9.0.1",
     "react": "^18.2.0",
+    "react-beautiful-dnd": "^13.1.1",
     "react-dom": "^18.2.0",
     "react-easy-crop": "^5.0.8",
     "react-firebase-hooks": "^5.1.1",
     "react-hook-form": "^7.45.2",
     "react-hot-toast": "^2.4.1",
     "react-map-gl": "^7.1.7",
-    "react-sortable-hoc": "^2.0.0",
     "tailwind-scrollbar-hide": "^1.1.7"
   },
   "devDependencies": {

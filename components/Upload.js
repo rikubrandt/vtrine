@@ -7,55 +7,21 @@ import getCroppedImg from '../lib/cropImage';
 import { v4 as uuidv4 } from 'uuid';
 import Cropper from 'react-easy-crop';
 import dynamic from 'next/dynamic';
-import { SortableContainer, SortableElement, arrayMove } from 'react-sortable-hoc';
+import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import { CropperModal } from "./CropperModal";
-import Pica from 'pica';
 
 const AddressAutofill = dynamic(() => import('@mapbox/search-js-react').then(mod => mod.AddressAutofill), { ssr: false });
-
-const SortableItem = SortableElement(({ file, onDelete, onImageClick }) => (
-  <div className="relative inline-block mx-2">
-    <div
-      className="absolute top-0 right-0 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center cursor-pointer z-10"
-      onClick={(e) => {
-        e.stopPropagation();
-        onDelete(file.id);
-      }}
-    >
-      X
-    </div>
-    <div className="cursor-pointer" onClick={() => onImageClick(file)}>
-      <img src={file.preview || file.url} alt="Preview" className="w-32 h-32 object-cover" />
-    </div>
-  </div>
-));
-
-const SortableList = SortableContainer(({ items, onDelete, onImageClick }) => {
-  return (
-    <div className="flex overflow-x-auto">
-      {items.map((file, index) => (
-        <SortableItem
-          key={`item-${file.id}`}
-          index={index}
-          file={file}
-          onDelete={onDelete}
-          onImageClick={onImageClick}
-        />
-      ))}
-    </div>
-  );
-});
 
 function Upload() {
   const [step, setStep] = useState(1);
   const [files, setFiles] = useState([]);
-  const [cropping, setCropping] = useState(null); // For the currently cropping image
+  const [cropping, setCropping] = useState(null); 
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
   const [rotation, setRotation] = useState(0); 
-  const [aspectRatio, setAspectRatio] = useState(4 / 5); // Default aspect ratio
+  const [aspectRatio, setAspectRatio] = useState(4 / 5); 
   const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
-  const [currentFile, setCurrentFile] = useState(null); // For handling the re-cropping in the modal
+  const [currentFile, setCurrentFile] = useState(null); 
   const [title, setTitle] = useState("");
   const [caption, setCaption] = useState("");
   const [location, setLocation] = useState({ place_name: "", lat: null, lng: null });
@@ -68,7 +34,7 @@ function Upload() {
   const [showModal, setShowModal] = useState(false);
 
   const handleFileChange = async (e) => {
-    const file = e.target.files[0]; // We only allow one file at a time now
+    const file = e.target.files[0];
     if (file) {
       const reader = new FileReader();
       reader.readAsDataURL(file);
@@ -97,8 +63,8 @@ function Upload() {
         file: cropping.file,
         src: cropping.src,
         cropData: { crop, zoom, croppedAreaPixels, rotation },
-        url: cropping.src, // Full image
-        preview: croppedPreview, // Cropped preview
+        url: cropping.src,
+        preview: croppedPreview,
         type: cropping.file.type,
       },
     ]);
@@ -113,12 +79,8 @@ function Upload() {
     }
   };
 
-  const onSortEnd = ({ oldIndex, newIndex }) => {
-    setFiles(arrayMove(files, oldIndex, newIndex));
-  };
-
   const handleImageClick = (file) => {
-    setCurrentFile(file); // Set the current file for re-cropping
+    setCurrentFile(file);
     setShowModal(true);
   };
 
@@ -162,7 +124,6 @@ function Upload() {
 
       const token = await auth.currentUser.getIdToken(true);
 
-      // Process each file independently
       const croppedImages = await Promise.all(
         files.map(async (file) => {
           const { cropData } = file;
@@ -176,7 +137,6 @@ function Upload() {
 
           const croppedImage = await getCroppedImg(file.src, croppedAreaPixels, rotation);
 
-          // Upload the image to Firebase
           const fileId = uuidv4();
           const fileRef = storage.ref().child(`uploads/${user.uid}/${fileId}`);
           const response = await fetch(croppedImage);
@@ -188,7 +148,6 @@ function Upload() {
         })
       );
 
-      // Create the post with all the cropped image URLs
       const response = await fetch("/api/upload", {
         method: "POST",
         headers: {
@@ -225,6 +184,20 @@ function Upload() {
       setError(error.message);
       setUploading(false);
     }
+  };
+
+  const onDragEnd = (result) => {
+    const { destination, source } = result;
+
+    if (!destination) {
+      return;
+    }
+
+    const newFiles = Array.from(files);
+    const [moved] = newFiles.splice(source.index, 1);
+    newFiles.splice(destination.index, 0, moved);
+
+    setFiles(newFiles);
   };
 
   return (
@@ -293,22 +266,41 @@ function Upload() {
                 </div>
               )}
               {files.length > 0 && (
-                <>
-                  <SortableList
-                    items={files}
-                    onDelete={handleDelete}
-                    onSortEnd={onSortEnd}
-                    onImageClick={handleImageClick}
-                    axis="x"
-                    pressDelay={200}
-                  />
-                  <p
-                    className="mt-1 text-sm text-gray-500 dark:text-gray-300"
-                    id="file_input_help"
-                  >
-                    Hold and drag to rearrange.
-                  </p>
-                </>
+                <DragDropContext onDragEnd={onDragEnd}>
+                  <Droppable droppableId="files" direction="horizontal">
+                    {(provided) => (
+                      <div
+                        {...provided.droppableProps}
+                        ref={provided.innerRef}
+                        className="flex overflow-x-auto"
+                      >
+                        {files.map((file, index) => (
+                          <Draggable key={file.id} draggableId={file.id} index={index}>
+                            {(provided) => (
+                              <div
+                                ref={provided.innerRef}
+                                {...provided.draggableProps}
+                                {...provided.dragHandleProps}
+                                className="relative inline-block mx-2"
+                              >
+                                <div
+                                  className="absolute top-0 right-0 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center cursor-pointer z-10"
+                                  onClick={() => handleDelete(file.id)}
+                                >
+                                  X
+                                </div>
+                                <div className="cursor-pointer" onClick={() => handleImageClick(file)}>
+                                  <img src={file.preview || file.url} alt="Preview" draggable={false} className="w-32 h-32 object-cover" />
+                                </div>
+                              </div>
+                            )}
+                          </Draggable>
+                        ))}
+                        {provided.placeholder}
+                      </div>
+                    )}
+                  </Droppable>
+                </DragDropContext>
               )}
               <div className="mt-6">
                 <button

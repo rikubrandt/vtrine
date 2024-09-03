@@ -1,7 +1,7 @@
 import React, { useCallback, useState, useEffect } from "react";
 import ReactDOM from "react-dom";
 import Cropper from "react-easy-crop";
-import getCroppedImg from "../lib/cropImage";
+import getCroppedImg from "../lib/cropImage"; 
 
 export const CropperModal = ({ showModal, setShowModal, onSave, currentFile }) => {
   const [crop, setCrop] = useState({ x: 0, y: 0 });
@@ -12,7 +12,7 @@ export const CropperModal = ({ showModal, setShowModal, onSave, currentFile }) =
 
   useEffect(() => {
     if (currentFile) {
-      setImageSrc(currentFile.src); // Load the original image source
+      setImageSrc(currentFile.src);
       if (currentFile.cropData) {
         setCrop(currentFile.cropData.crop);
         setZoom(currentFile.cropData.zoom);
@@ -28,23 +28,19 @@ export const CropperModal = ({ showModal, setShowModal, onSave, currentFile }) =
 
   const handleSave = async () => {
     try {
-      const croppedImage = await getCroppedImg(imageSrc, croppedAreaPixels, rotation);
-      const croppedPreview = await getCroppedImg(imageSrc, croppedAreaPixels, rotation); // Generate a preview for the thumbnail
-  
+      const croppedImageBlobUrl = await getCroppedImg(imageSrc, croppedAreaPixels, rotation);
       onSave(
         {
           ...currentFile,
           cropData: { crop, zoom, croppedAreaPixels, rotation },
         },
-        croppedImage, // Full cropped image blob
-        croppedPreview // Thumbnail preview
+        croppedImageBlobUrl // Pass the blob URL for further processing
       );
       setShowModal(false);
     } catch (error) {
       console.error("Error cropping image:", error);
     }
   };
-  
 
   if (!showModal) return null;
 

@@ -14,22 +14,21 @@ import Pica from 'pica';
 const AddressAutofill = dynamic(() => import('@mapbox/search-js-react').then(mod => mod.AddressAutofill), { ssr: false });
 
 const SortableItem = SortableElement(({ file, onDelete, onImageClick }) => (
-    <div className="relative inline-block mx-2">
-      <div
-        className="absolute top-0 right-0 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center cursor-pointer z-10"
-        onClick={(e) => {
-          e.stopPropagation();
-          onDelete(file.id);
-        }}
-      >
-        X
-      </div>
-      <div className="cursor-pointer" onClick={() => onImageClick(file)}>
-        <img src={file.preview || file.url} alt="Preview" className="w-32 h-32 object-cover" />
-      </div>
+  <div className="relative inline-block mx-2">
+    <div
+      className="absolute top-0 right-0 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center cursor-pointer z-10"
+      onClick={(e) => {
+        e.stopPropagation();
+        onDelete(file.id);
+      }}
+    >
+      X
     </div>
-  ));
-  
+    <div className="cursor-pointer" onClick={() => onImageClick(file)}>
+      <img src={file.preview || file.url} alt="Preview" className="w-32 h-32 object-cover" />
+    </div>
+  </div>
+));
 
 const SortableList = SortableContainer(({ items, onDelete, onImageClick }) => {
   return (
@@ -53,7 +52,7 @@ function Upload() {
   const [cropping, setCropping] = useState(null); // For the currently cropping image
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
-  const [rotation, setRotation] = useState(0);
+  const [rotation, setRotation] = useState(0); 
   const [aspectRatio, setAspectRatio] = useState(4 / 5); // Default aspect ratio
   const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
   const [currentFile, setCurrentFile] = useState(null); // For handling the re-cropping in the modal
@@ -88,9 +87,9 @@ function Upload() {
       console.error("Cropped area not set correctly");
       return;
     }
-  
+
     const croppedPreview = await getCroppedImg(cropping.src, croppedAreaPixels, rotation);
-  
+
     setFiles((prevFiles) => [
       ...prevFiles,
       {
@@ -105,9 +104,6 @@ function Upload() {
     ]);
     setCropping(null);
   };
-  
-
-  
 
   const handleDelete = async (id) => {
     const fileToDelete = files.find((file) => file.id === id);
@@ -123,14 +119,12 @@ function Upload() {
 
   const handleImageClick = (file) => {
     setCurrentFile(file); // Set the current file for re-cropping
-    setShowModal(true); 
+    setShowModal(true);
   };
 
   const handleSaveCroppedImage = async (updatedFile, croppedImageBlob) => {
-    // Generate a cropped preview image to display in the SortableItem
     const croppedPreview = await getCroppedImg(updatedFile.src, updatedFile.cropData.croppedAreaPixels, updatedFile.cropData.rotation);
-  
-    // Update the specific file in the files array with the new crop data and image blob
+
     setFiles((prevFiles) =>
       prevFiles.map((file) =>
         file.id === updatedFile.id
@@ -140,7 +134,6 @@ function Upload() {
     );
     setShowModal(false);
   };
-  
 
   const fetchCoordinates = async (placeName) => {
     const response = await fetch(
@@ -156,71 +149,45 @@ function Upload() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null);
-  
+
     if (files.length === 0 || uploading) {
       setError("Please select files.");
       return;
     }
-  
+
     setUploading(true);
-  
+
     try {
       const { lat, lng } = await fetchCoordinates(location.place_name);
-  
+
       const token = await auth.currentUser.getIdToken(true);
-  
+
       // Process each file independently
       const croppedImages = await Promise.all(
         files.map(async (file) => {
           const { cropData } = file;
-  
+
           if (!cropData || !cropData.croppedAreaPixels) {
             console.error("Missing or incomplete crop data for file:", file);
             throw new Error("Missing or incomplete crop data for one or more images.");
           }
-  
-          const { croppedAreaPixels } = cropData;
-  
-          // Create a new canvas for each image to avoid conflicts
-          const croppedImageCanvas = document.createElement('canvas');
-          const croppedContext = croppedImageCanvas.getContext('2d');
-  
-          if (!croppedAreaPixels.width || !croppedAreaPixels.height) {
-            console.error("Invalid croppedAreaPixels data:", croppedAreaPixels);
-            throw new Error("Invalid crop data.");
-          }
-  
-          croppedImageCanvas.width = croppedAreaPixels.width;
-          croppedImageCanvas.height = croppedAreaPixels.height;
-  
-          const image = new Image();
-          image.src = file.src;
-          await new Promise((resolve) => (image.onload = resolve));
-  
-          croppedContext.drawImage(
-            image,
-            croppedAreaPixels.x,
-            croppedAreaPixels.y,
-            croppedAreaPixels.width,
-            croppedAreaPixels.height,
-            0,
-            0,
-            croppedAreaPixels.width,
-            croppedAreaPixels.height
-          );
-  
-          const pica = Pica();
-          const blob = await pica.toBlob(croppedImageCanvas, 'image/jpeg', 0.9);
-  
-          // Upload each cropped image separately
+
+          const { croppedAreaPixels, rotation } = cropData;
+
+          const croppedImage = await getCroppedImg(file.src, croppedAreaPixels, rotation);
+
+          // Upload the image to Firebase
           const fileId = uuidv4();
           const fileRef = storage.ref().child(`uploads/${user.uid}/${fileId}`);
+          const response = await fetch(croppedImage);
+          const blob = await response.blob();
           await fileRef.put(blob, { contentType: 'image/jpeg' });
           const url = await fileRef.getDownloadURL();
-          return url; // Return the download URL of the uploaded image
+
+          return url;
         })
       );
-  
+
       // Create the post with all the cropped image URLs
       const response = await fetch("/api/upload", {
         method: "POST",
@@ -239,13 +206,13 @@ function Upload() {
             },
             date,
             hidden,
-            downloadURLs: croppedImages, // Array of image URLs
+            downloadURLs: croppedImages,
           },
         }),
       });
-  
+
       const result = await response.json();
-  
+
       if (result.success) {
         setUploading(false);
         router.push("/profile");
@@ -259,7 +226,6 @@ function Upload() {
       setUploading(false);
     }
   };
-  
 
   return (
     <div className="pl-10">
@@ -276,9 +242,11 @@ function Upload() {
                       image={cropping.src}
                       crop={crop}
                       zoom={zoom}
+                      rotation={rotation}
                       aspect={aspectRatio}
                       onCropChange={setCrop}
                       onZoomChange={setZoom}
+                      onRotationChange={setRotation}
                       onCropComplete={onCropComplete}
                     />
                   </div>
@@ -377,7 +345,6 @@ function Upload() {
                     type="text"
                     name="location"
                     className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
-                    placeholder="Hacker Way 1"
                     onChange={(e) => setLocation({ place_name: e.target.value })}
                     required
                   />

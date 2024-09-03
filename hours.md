@@ -41,6 +41,7 @@
 | 27.8.2024 | 2   | Cropping images continues..                                       |
 | 29.8.2024 | 3   | Cropping images continues..                                       |
 | 2.9.2024  | 4   | Cropping images functionality done, tough one for sure. :S        |
+| 4.9.2024  | 1   | Crop supports rotation, added pica for all image blobs.           |
 
  
 | Sum | x | |

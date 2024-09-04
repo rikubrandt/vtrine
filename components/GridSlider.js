@@ -1,95 +1,159 @@
-import React, { useState } from "react";
-import { useKeenSlider } from "keen-slider/react";
-import "keen-slider/keen-slider.min.css";
+import React, { useState, useEffect, useRef } from "react";
 
-const GridSlider = ({ post, title }) => {
+const GridSlider = ({ post }) => {
   const [currentSlide, setCurrentSlide] = useState(0);
-  const [loaded, setLoaded] = useState(false);
-  const [sliderRef, instanceRef] = useKeenSlider({
-    slides: { perView: 1 },
-    initial: 0,
-    slideChanged(slider) {
-      setCurrentSlide(slider.track.details.rel);
-    },
-    created() {
-      setLoaded(true);
-    },
-  });
+  const sliderRef = useRef(null);
+  const totalSlides = post.length;
+  const [touchStart, setTouchStart] = useState(null);
+  const [touchEnd, setTouchEnd] = useState(null);
+
+  useEffect(() => {
+    sliderRef.current.style.transform = `translateX(-${currentSlide * 100}%)`;
+  }, [currentSlide]);
+
+  const nextSlide = () => {
+    setCurrentSlide((prev) => (prev === totalSlides - 1 ? prev : prev + 1));
+  };
+
+  const prevSlide = () => {
+    setCurrentSlide((prev) => (prev === 0 ? 0 : prev - 1));
+  };
+
+  // Touch Handlers for Swipe Gesture
+  const handleTouchStart = (e) => {
+    setTouchStart(e.targetTouches[0].clientX);
+  };
+
+  const handleTouchMove = (e) => {
+    setTouchEnd(e.targetTouches[0].clientX);
+  };
+
+  const handleTouchEnd = () => {
+    if (!touchStart || !touchEnd) return;
+
+    const distance = touchStart - touchEnd;
+    const minSwipeDistance = 15;
+
+    if (distance > minSwipeDistance) {
+      nextSlide();
+    } else if (distance < -minSwipeDistance) {
+      prevSlide();
+    }
+
+    setTouchStart(null);
+    setTouchEnd(null);
+  };
 
   return (
-    <div className="navigation-wrapper">
-      <p className="text-xl font-mono mb-4">{title}</p>
-      <div ref={sliderRef} className="keen-slider w-full h-full overflow-hidden">
-        {post.map((image, index) => (
-          <div key={image.id} className="keen-slider__slide w-full">
-            <div className="w-full h-64 md:h-96 lg:h-[30rem] xl:h-[36rem] bg-gray-200 flex items-center justify-center overflow-hidden">
+    <div className="relative w-full h-full overflow-hidden">
+      {/* Carousel wrapper */}
+      <div
+        className="carousel-wrapper flex transition-transform duration-500 ease-in-out h-full"
+        ref={sliderRef}
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+      >
+        {post.map((file, index) => (
+          <div
+            key={file.id}
+            className="carousel-item w-full h-full flex-shrink-0"
+          >
+            {file.downloadURL.endsWith(".mp4") || file.downloadURL.endsWith(".webm") ? (
+              <video
+                className="block w-full h-full object-contain"
+                controls
+                src={file.downloadURL}
+                alt={`Video ${index}`}
+              />
+            ) : (
               <img
-                src={image.downloadURL}
-                alt={`Post ${index + 1}`}
-                className="w-full h-full object-contain"
+                src={file.downloadURL}
+                className="block w-full h-full object-contain"
+                alt={`Slide ${index}`}
                 draggable={false}
               />
-            </div>
+            )}
           </div>
         ))}
       </div>
 
-      {loaded && instanceRef.current && (
+      {/* Slider indicators */}
+      {totalSlides > 1 && (
+        <div className="absolute bottom-4 left-1/2 z-30 flex space-x-2 transform -translate-x-1/2">
+          {post.map((_, index) => (
+            <button
+              key={index}
+              type="button"
+              className={`w-3 h-3 rounded-full ${
+                currentSlide === index ? "bg-gray-800" : "bg-gray-400"
+              }`}
+              aria-current={currentSlide === index ? "true" : "false"}
+              aria-label={`Slide ${index + 1}`}
+              onClick={() => setCurrentSlide(index)}
+            ></button>
+          ))}
+        </div>
+      )}
+
+      {/* Slider controls */}
+      {totalSlides > 1 && (
         <>
-          <Arrow
-            left
-            onClick={(e) => e.stopPropagation() || instanceRef.current?.prev()}
-            disabled={currentSlide === 0}
-          />
+          {currentSlide > 0 && (
+            <button
+              type="button"
+              className="absolute top-1/2 left-4 z-30 flex items-center justify-center h-8 w-8 bg-gray-800/50 hover:bg-gray-800/70 rounded-full transition-colors duration-300"
+              onClick={prevSlide}
+              style={{ transform: "translateY(-50%)" }}
+            >
+              <svg
+                className="w-4 h-4 text-white"
+                aria-hidden="true"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 6 10"
+              >
+                <path
+                  stroke="currentColor"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M5 1 1 5l4 4"
+                />
+              </svg>
+              <span className="sr-only">Previous</span>
+            </button>
+          )}
 
-          <Arrow
-            onClick={(e) => e.stopPropagation() || instanceRef.current?.next()}
-            disabled={
-              currentSlide ===
-              instanceRef.current.track.details.slides.length - 1
-            }
-          />
-
-          <div className="dots">
-            {[
-              ...Array(instanceRef.current.track.details.slides.length).keys(),
-            ].map((idx) => {
-              return (
-                <button
-                  key={idx}
-                  onClick={() => {
-                    instanceRef.current?.moveToIdx(idx);
-                  }}
-                  className={"dot" + (currentSlide === idx ? " active" : "")}
-                ></button>
-              );
-            })}
-          </div>
+          {currentSlide < totalSlides - 1 && (
+            <button
+              type="button"
+              className="absolute top-1/2 right-4 z-30 flex items-center justify-center h-8 w-8 bg-gray-800/50 hover:bg-gray-800/70 rounded-full transition-colors duration-300"
+              onClick={nextSlide}
+              style={{ transform: "translateY(-50%)" }}
+            >
+              <svg
+                className="w-4 h-4 text-white"
+                aria-hidden="true"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 6 10"
+              >
+                <path
+                  stroke="currentColor"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M1 9l4-4-4-4"
+                />
+              </svg>
+              <span className="sr-only">Next</span>
+            </button>
+          )}
         </>
       )}
     </div>
   );
 };
-
-function Arrow(props) {
-  const disabled = props.disabled ? " arrow--disabled" : "";
-  return (
-    <svg
-      onClick={props.onClick}
-      className={`arrow ${
-        props.left ? "arrow--left" : "arrow--right"
-      } ${disabled}`}
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 24 24"
-    >
-      {props.left && (
-        <path d="M16.67 0l2.83 2.829-9.339 9.175 9.339 9.167-2.83 2.829-12.17-11.996z" />
-      )}
-      {!props.left && (
-        <path d="M5 3l3.057-3 11.943 12-11.943 12-3.057-3 9-9z" />
-      )}
-    </svg>
-  );
-}
 
 export default GridSlider;

@@ -200,6 +200,7 @@ function Upload() {
             date,
             hidden,
             downloadURLs: croppedImages,
+            aspectRatio: aspectRatio,
           },
         }),
       });

@@ -37,6 +37,7 @@ export default async function handler(req, res) {
       heartCount: metadata.heartCount || 0,
       files: metadata.downloadURLs,
       createdAt: admin.firestore.FieldValue.serverTimestamp(),
+      aspectRatio: metadata.aspectRatio,
     });
 
     res.status(200).json({ success: true });

@@ -12,36 +12,6 @@
   }
 }
 
-.slider-image {
-  object-fit: fill;
-}
-
-.image-select-item {
-  position: relative;
-}
-
-.image-select-item .checkbox {
-  position: absolute;
-  right: 5px;
-  top: 5px;
-  box-sizing: border-box;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  cursor: pointer;
-  width: 20px;
-  height: 20px;
-  background: white;
-  border: 1px solid rgb(9, 113, 241);
-  border-radius: 25px;
-  text-align: center;
-  color: white;
-}
-
-.image-select-item.active .checkbox {
-  background: rgb(9, 113, 241);
-  border: 1px solid white;
-}
 
 .wheel {
   width: 500px;
@@ -64,23 +34,6 @@
   font-size: 2.5em;
 }
 
-.swiper {
-  width: 100%;
-  padding-top: 50px;
-  padding-bottom: 50px;
-}
-
-.swiper-slide {
-  background-position: center;
-  background-size: cover;
-  width: 300px;
-  height: 300px;
-}
-
-.swiper-slide img {
-  display: block;
-  width: 100%;
-}
 
 
 
@@ -145,50 +98,36 @@
 
   .navigation-wrapper {
     position: relative;
-    max-width: 600px;
-    margin: auto;
+    width: 100%;
+    height: 100%;
   }
   
-  .arrow {
-    position: absolute;
-    top: 50%;
-    width: 30px;
-    height: 30px;
-    fill: #000;
-    cursor: pointer;
-    z-index: 10;
+.carousel-item {
+transition: opacity 0.7s ease-in-out, transform 0.7s ease-in-out;
+}
+
+.carousel-item.active {
+opacity: 1;
+transform: translateX(0);
+}
+
+.carousel-item.inactive {
+opacity: 0;
+transform: translateX(-100%);
+}
+
+  /* Aspect ratio handling */
+.aspect-ratio-9-16 {
+    aspect-ratio: 9 / 16;
   }
   
-  .arrow--left {
-    left: 10px;
-    transform: translateY(-50%);
+  .aspect-ratio-1-1 {
+    aspect-ratio: 1 / 1;
   }
   
-  .arrow--right {
-    right: 10px;
-    transform: translateY(-50%);
+  .full-height {
+    height: 100vh; 
   }
   
-  .arrow--disabled {
-    opacity: 0.3;
-    cursor: not-allowed;
-  }
+
   
-  .dots {
-    display: flex;
-    justify-content: center;
-    margin-top: 10px;
-  }
-  
-  .dot {
-    width: 10px;
-    height: 10px;
-    background: #ccc;
-    border-radius: 50%;
-    margin: 0 5px;
-    cursor: pointer;
-  }
-  
-  .dot.active {
-    background: #000;
-  }

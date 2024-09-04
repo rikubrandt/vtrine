@@ -20,8 +20,12 @@ const ProfileTab = ({ userId, posts }) => {
       case "Map":
         return <MapDisplay displays={displays} />;
       case "Timeline":
-        return <Timeline displays={displays} />;
-      case "All":
+        return (
+            <div className="timeline-wrapper">
+              <Timeline displays={displays} />
+            </div>
+          );
+          case "All":
         return <AllComponent displays={displays} />;
       default:
         return null;

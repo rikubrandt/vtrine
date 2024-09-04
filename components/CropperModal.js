@@ -3,7 +3,7 @@ import ReactDOM from "react-dom";
 import Cropper from "react-easy-crop";
 import getCroppedImg from "../lib/cropImage"; 
 
-export const CropperModal = ({ showModal, setShowModal, onSave, currentFile }) => {
+export const CropperModal = ({ showModal, setShowModal, onSave, currentFile, aspectRatio }) => {
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
   const [rotation, setRotation] = useState(0);
@@ -65,7 +65,7 @@ export const CropperModal = ({ showModal, setShowModal, onSave, currentFile }) =
               crop={crop}
               zoom={zoom}
               rotation={rotation}
-              aspect={4 / 5}
+              aspect={aspectRatio}
               onCropChange={setCrop}
               onZoomChange={setZoom}
               onRotationChange={setRotation}

@@ -1,7 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
 import {
-  MagnifyingGlassIcon,
   PlusCircleIcon,
   UserGroupIcon,
   HeartIcon,
@@ -26,7 +25,6 @@ function Header() {
   };
   return (
     <div className="shadow-sm border-b bg-white sticky top-0 z-50">
-      {/* This will be your dropdown menu */}
       {isOpen && (
         <div
           className={`absolute right-0 top-16 mt-2 w-48 bg-white rounded-md overflow-hidden shadow-xl z-50`}

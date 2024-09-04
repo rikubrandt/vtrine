@@ -15,13 +15,13 @@ const AddressAutofill = dynamic(() => import('@mapbox/search-js-react').then(mod
 function Upload() {
   const [step, setStep] = useState(1);
   const [files, setFiles] = useState([]);
-  const [cropping, setCropping] = useState(null); 
+  const [cropping, setCropping] = useState(null);
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
-  const [rotation, setRotation] = useState(0); 
-  const [aspectRatio, setAspectRatio] = useState(4 / 5); 
+  const [rotation, setRotation] = useState(0);
+  const [aspectRatio, setAspectRatio] = useState(null); // Aspect ratio will be determined dynamically
   const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
-  const [currentFile, setCurrentFile] = useState(null); 
+  const [currentFile, setCurrentFile] = useState(null);
   const [title, setTitle] = useState("");
   const [caption, setCaption] = useState("");
   const [location, setLocation] = useState({ place_name: "", lat: null, lng: null });
@@ -38,10 +38,35 @@ function Upload() {
     if (file) {
       const reader = new FileReader();
       reader.readAsDataURL(file);
-      reader.onloadend = () => {
+      reader.onloadend = async () => {
+        if (!aspectRatio) {
+          const newAspectRatio = await determineAspectRatio(file);
+          setAspectRatio(newAspectRatio);
+        }
         setCropping({ file, src: reader.result });
       };
     }
+  };
+
+  const determineAspectRatio = (file) => {
+    return new Promise((resolve) => {
+      const fileUrl = URL.createObjectURL(file);
+      if (file.type.startsWith("image/")) {
+        const image = new Image();
+        image.onload = () => {
+          const aspect = image.width > image.height ? 1 / 1 : 9 / 16;
+          resolve(aspect);
+        };
+        image.src = fileUrl;
+      } else if (file.type.startsWith("video/")) {
+        const video = document.createElement("video");
+        video.onloadedmetadata = () => {
+          const aspect = video.videoWidth > video.videoHeight ? 1 / 1 : 9 / 16;
+          resolve(aspect);
+        };
+        video.src = fileUrl;
+      }
+    });
   };
 
   const onCropComplete = useCallback((croppedArea, croppedAreaPixels) => {
@@ -75,7 +100,16 @@ function Upload() {
     const fileToDelete = files.find((file) => file.id === id);
     if (fileToDelete) {
       await fileToDelete.ref?.delete();
-      setFiles((prevFiles) => prevFiles.filter((file) => file.id !== id));
+      setFiles((prevFiles) => {
+        const updatedFiles = prevFiles.filter((file) => file.id !== id);
+  
+        // If all files are deleted, reset the aspect ratio
+        if (updatedFiles.length === 0) {
+          setAspectRatio(null); // Reset aspect ratio when no files are left
+        }
+  
+        return updatedFiles;
+      });
     }
   };
 
@@ -253,14 +287,14 @@ function Upload() {
                     aria-describedby="file_input_help"
                     id="file_input"
                     type="file"
-                    accept="image/*"
+                    accept="image/*,video/*"
                     onChange={handleFileChange}
                   />
                   <p
                     className="mt-1 text-sm text-gray-500 dark:text-gray-300"
                     id="file_input_help"
                   >
-                    Upload images one by one.
+                    Upload images or videos one by one.
                   </p>
                   <Loader show={uploading} />
                 </div>
@@ -395,12 +429,12 @@ function Upload() {
         )}
       </form>
 
-      {/* CropperModal for re-cropping existing images */}
       {showModal && currentFile && (
         <CropperModal
           showModal={showModal}
           setShowModal={setShowModal}
           currentFile={currentFile}
+          aspectRatio={aspectRatio}
           onSave={handleSaveCroppedImage}
         />
       )}

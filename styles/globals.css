@@ -131,3 +131,64 @@ transform: translateX(-100%);
   
 
   
+  .map-container {
+    position: relative;
+    width: 100%;
+    height: 400px;
+  }
+  
+  .map-container.desktop {
+    height: 600px;
+  }
+  
+  .map-container.mobile {
+    height: 100vh;
+    scroll-snap-align: start;
+    overflow: hidden;
+  }
+  
+  /* Scroll snapping effect for mobile */
+  body {
+    scroll-snap-type: y mandatory;
+  }
+  
+  @media (max-width: 768px) {
+    .map-container {
+      height: 100vh;
+      scroll-snap-align: start;
+    }
+  }
+  
+
+  /* Modal Background and Wrapper Styling */
+.bg-black.bg-opacity-50 {
+    backdrop-filter: blur(2px); 
+  }
+  
+  @media (max-width: 768px) {
+    .max-w-lg {
+      max-width: 100%; 
+    }
+  }
+  
+  @media (min-width: 768px) {
+    .max-w-3xl {
+      max-width: 768px;
+    }
+  }
+  
+  @media (min-width: 1024px) {
+    .max-w-5xl {
+      max-width: 1024px;
+    }
+  }
+  
+  @media (min-width: 1280px) {
+    .max-w-6xl {
+      max-width: 1280px;
+    }
+  }
+  
+  button {
+    transition: background-color 0.2s ease, color 0.2s ease;
+  }

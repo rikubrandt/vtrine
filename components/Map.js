@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Map, { Marker } from 'react-map-gl';
 import GridSliderModal from './GridSliderModal';
 
@@ -11,7 +11,25 @@ const MapDisplay = ({ displays }) => {
     height: '400px',
   });
 
+  const [isMobile, setIsMobile] = useState(false);
   const [selectedDisplay, setSelectedDisplay] = useState(null);
+
+  useEffect(() => {
+    const updateSize = () => {
+      if (window.innerWidth <= 768) {
+        setIsMobile(true);
+        setViewport({ ...viewport, height: '100vh' }); // Full screen on mobile
+      } else {
+        setIsMobile(false);
+        setViewport({ ...viewport, height: '600px' }); // Larger map on desktop
+      }
+    };
+
+    window.addEventListener('resize', updateSize);
+    updateSize();
+
+    return () => window.removeEventListener('resize', updateSize);
+  }, []);
 
   const handleViewportChange = (newViewport) => {
     setViewport(newViewport);
@@ -26,19 +44,27 @@ const MapDisplay = ({ displays }) => {
   };
 
   return (
-    <div style={{ position: 'relative', width: '100%', height: '400px' }}>
+    <div
+      style={{
+        position: 'relative',
+        width: '100%',
+        height: isMobile ? '100vh' : '600px',
+        scrollSnapAlign: isMobile ? 'start' : 'none',
+      }}
+      className={isMobile ? 'map-container mobile' : 'map-container desktop'}
+    >
       <Map
         {...viewport}
         mapboxAccessToken={process.env.NEXT_PUBLIC_MAPBOX_APIKEY}
         mapStyle="mapbox://styles/mapbox/satellite-streets-v12"
-        onMove={evt => handleViewportChange(evt.viewState)}
+        onMove={(evt) => handleViewportChange(evt.viewState)}
         dragPan={true}
         scrollZoom={true}
-        dragRotate={true} 
+        dragRotate={true}
         attributionControl={false}
       >
         {displays
-          .filter(display => display.location && display.location.lat && display.location.lng)
+          .filter((display) => display.location && display.location.lat && display.location.lng)
           .map((display) => (
             <Marker
               key={display.id}
@@ -55,7 +81,6 @@ const MapDisplay = ({ displays }) => {
               </div>
             </Marker>
           ))}
-        
       </Map>
 
       {selectedDisplay && (

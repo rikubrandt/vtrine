@@ -61,11 +61,12 @@ const GridSlider = ({ post }) => {
           >
             {file.downloadURL.endsWith(".mp4") || file.downloadURL.endsWith(".webm") ? (
               <video
-                className="block w-full h-full object-contain"
-                controls
-                src={file.downloadURL}
-                alt={`Video ${index}`}
-              />
+              className="block w-full h-full object-contain"
+              controls
+              src={file.downloadURL}
+              alt={`Video ${index}`}
+              autoPlay={currentSlide === index}
+            />
             ) : (
               <img
                 src={file.downloadURL}

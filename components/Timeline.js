@@ -22,18 +22,17 @@ const Timeline = ({ displays }) => {
 
   return (
     <section className="relative min-h-screen flex flex-col justify-center bg-slate-50 overflow-hidden">
-      <div className="w-full max-w-7xl mx-auto px-4 md:px-6 py-24">
-        <h3 className="text-2xl text-gray-700 font-bold mb-6 ml-3">Timeline</h3>
+      <div className="w-full max-w-7xl mx-auto mx-4 md:px-6 mt-2">
         <ol className="space-y-8">
           {sortedDisplays.map((display) => (
             <li
               key={display.id}
               className="border-l-2 border-gray-300"
               style={{
-                minHeight: display.files?.[0]?.aspectRatio === 0.5625 ? "100vh" : "80vh", // Adjust height here
+                minHeight: display.files?.[0]?.aspectRatio === 0.5625 ? "100vh" : "80vh", 
               }}
             >
-              <div className="md:flex flex-start items-start">
+              <div className="md:flex ml-2 flex-start items-start">
                 <div className="w-6 h-6 flex items-center justify-center rounded-full -ml-3.5 bg-gray-300">
                   <svg
                     aria-hidden="true"
@@ -70,7 +69,7 @@ const Timeline = ({ displays }) => {
                         post={display.files.map((file, i) => ({
                           id: `${display.id}-${i}`,
                           downloadURL: file,
-                          aspectRatio: file.aspectRatio, // Aspect ratio stored with the file
+                          aspectRatio: file.aspectRatio,
                         }))}
                         title={display.title}
                       />

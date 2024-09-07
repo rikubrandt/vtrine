@@ -11,18 +11,21 @@ import {
 import { HomeIcon } from "@heroicons/react/24/solid";
 import { UserContext } from "../lib/context";
 import { signOutUser } from "../lib/firebase";
-
 import { useContext, useState } from "react";
 import SearchBar from "./SearchBar";
 
 function Header() {
   const [isOpen, setIsOpen] = useState(false);
-
-  const { username, image, name } = useContext(UserContext);
+  const { username, image, name, loading } = useContext(UserContext); 
 
   const toggleMenu = () => {
     setIsOpen(!isOpen);
   };
+
+  if (loading) {
+    return <div className="shadow-sm border-b bg-white sticky top-0 z-50"></div>
+  }
+
   return (
     <div className="shadow-sm border-b bg-white sticky top-0 z-50">
       {isOpen && (
@@ -69,6 +72,7 @@ function Header() {
           </div>
         </div>
       )}
+
       <div className="flex justify-between max-w-6xl mx-5 lg:mx-auto">
         {/* LOGO */}
         <div className="relative hidden lg:inline-grid w-24 cursor-pointer">
@@ -91,14 +95,14 @@ function Header() {
             />
           </Link>
         </div>
-        {/* SEARCH BAR */}
 
+        {/* SEARCH BAR */}
         <SearchBar />
 
         {/* MENU ITEMS */}
-
         <div className="flex items-center justify-end space-x-4">
-          {username && (
+          {/* Conditionally render based on username */}
+          {username ? (
             <>
               <Link href="/">
                 <HomeIcon className="navBtn" />
@@ -108,11 +112,10 @@ function Header() {
                 onClick={toggleMenu}
               />
               <div className="relative navBtn">
-                {" "}
                 <PaperAirplaneIcon className="navBtn" />
                 <div
                   className="absolute -top-1 -right-2 text-xs w-5 h-5 
-             bg-red-500 rounded-full flex items-center justify-center animate-pulse text-white"
+                 bg-red-500 rounded-full flex items-center justify-center animate-pulse text-white"
                 >
                   3
                 </div>
@@ -138,15 +141,12 @@ function Header() {
                 />
               </Link>
             </>
-          )}
-          {!username && (
-            <>
-              <Link href="/login">
-                <button className="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded shadow">
-                  Sign In
-                </button>
-              </Link>
-            </>
+          ) : (
+            <Link href="/login">
+              <button className="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded shadow">
+                Sign In
+              </button>
+            </Link>
           )}
         </div>
       </div>

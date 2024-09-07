@@ -9,6 +9,7 @@ import {
   STATE_CHANGED,
 } from "../lib/firebase";
 import { UserContext } from "../lib/context";
+import { withAuth } from "./withAuth";
 import Loader from "./Loader";
 
 function Settings() {
@@ -282,4 +283,4 @@ function Settings() {
   );
 }
 
-export default Settings;
+export default withAuth(Settings);

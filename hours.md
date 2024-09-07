@@ -44,6 +44,6 @@
 | 4.9.2024  | 1   | Crop supports rotation, added pica for all image blobs.           |
 | 5.9.2024  | 3   | Crop decides proper aspect ratio, reworked slider from scratch    |
 | 6.9.2024  | 2   | All tab component, redesign modal a bit to fit the screen better  |
+| 7.9.2024  | 1   | Notifications page, make auth pages not flash stuff before load complete |
 
- 
 | Sum | x | |

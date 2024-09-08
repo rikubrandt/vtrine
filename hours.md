@@ -45,5 +45,7 @@
 | 5.9.2024  | 3   | Crop decides proper aspect ratio, reworked slider from scratch    |
 | 6.9.2024  | 2   | All tab component, redesign modal a bit to fit the screen better  |
 | 7.9.2024  | 1   | Notifications page, make auth pages not flash stuff before load complete |
+|           | 4   | Support video cropping start.                                     |
+| 8.9.2024  | 4   | Now it supports video cropping with cloud functions               |
 
 | Sum | x | |

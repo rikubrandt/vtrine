@@ -36,6 +36,7 @@ export default async function handler(req, res) {
       hidden: metadata.hidden,
       heartCount: metadata.heartCount || 0,
       files: metadata.downloadURLs,
+      cropData: metadata.cropData,  
       createdAt: admin.firestore.FieldValue.serverTimestamp(),
       aspectRatio: metadata.aspectRatio,
     });

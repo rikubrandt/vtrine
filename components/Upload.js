@@ -9,6 +9,8 @@ import Cropper from 'react-easy-crop';
 import dynamic from 'next/dynamic';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import { CropperModal } from "./CropperModal";
+import { withAuth } from "./withAuth";
+import fileTypeChecker from 'file-type-checker';
 
 const AddressAutofill = dynamic(() => import('@mapbox/search-js-react').then(mod => mod.AddressAutofill), { ssr: false });
 
@@ -33,21 +35,87 @@ function Upload() {
   const { user } = useContext(UserContext);
   const [showModal, setShowModal] = useState(false);
 
+  // Function to check file type and handle accordingly
   const handleFileChange = async (e) => {
     const file = e.target.files[0];
+    const imageTypes = ["jpeg", "png", "webp", "bmp"];
+    const videoTypes = ["mp4", "mov", "avi", "mkv"];
+  
     if (file) {
       const reader = new FileReader();
-      reader.readAsDataURL(file);
-      reader.onloadend = async () => {
-        if (!aspectRatio) {
-          const newAspectRatio = await determineAspectRatio(file);
-          setAspectRatio(newAspectRatio);
+      reader.readAsArrayBuffer(file);
+  
+      reader.onload = async () => {
+        const arrayBuffer = reader.result;
+        const isImage = fileTypeChecker.validateFileType(arrayBuffer, imageTypes);
+        const isVideo = fileTypeChecker.validateFileType(arrayBuffer, videoTypes);
+  
+        if (isImage) {
+          const imageReader = new FileReader();
+          imageReader.readAsDataURL(file);
+          imageReader.onloadend = async () => {
+            if (!aspectRatio) {
+              const newAspectRatio = await determineAspectRatio(file);
+              setAspectRatio(newAspectRatio);
+            }
+            setCropping({ file, src: imageReader.result, type: "image" }); 
+          };
+        } else if (isVideo) {
+          const videoUrl = URL.createObjectURL(file);
+          // Extract a frame from the video for cropping
+          const frame = await extractVideoFrame(videoUrl);
+          if (!aspectRatio) {
+            const newAspectRatio = await determineAspectRatio(file);
+            setAspectRatio(newAspectRatio);
+          }
+          // Set frame as an image for cropping
+          setCropping({ file, src: videoUrl, frame, isVideo: true, type: "video" });
+        } else {
+          setError("Only images or videos are allowed.");
         }
-        setCropping({ file, src: reader.result });
       };
     }
   };
-
+  
+  // Function to extract a frame from the video
+  const extractVideoFrame = (videoUrl) => {
+    return new Promise((resolve, reject) => {
+      const video = document.createElement("video");
+      video.src = videoUrl;
+      video.crossOrigin = "anonymous"; // Ensure cross-origin access if necessary
+  
+      // Add event listener for error handling
+      video.addEventListener("error", (error) => {
+        console.error("Error loading video:", error);
+        reject("Error loading video");
+      });
+  
+      video.addEventListener("loadeddata", () => {
+        try {
+          video.currentTime = 1; // You can set this to extract a frame at any specific time
+        } catch (error) {
+          console.error("Error seeking video:", error);
+          reject("Error seeking video");
+        }
+      });
+  
+      video.addEventListener("seeked", () => {
+        try {
+          const canvas = document.createElement("canvas");
+          canvas.width = video.videoWidth;
+          canvas.height = video.videoHeight;
+          const ctx = canvas.getContext("2d");
+          ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+          const frameUrl = canvas.toDataURL("image/jpeg");
+          resolve(frameUrl); // Resolve the extracted frame as a data URL
+        } catch (error) {
+          console.error("Error extracting video frame:", error);
+          reject("Error extracting video frame");
+        }
+      });
+    });
+  };
+  
   const determineAspectRatio = (file) => {
     return new Promise((resolve) => {
       const fileUrl = URL.createObjectURL(file);
@@ -78,23 +146,50 @@ function Upload() {
       console.error("Cropped area not set correctly");
       return;
     }
-
-    const croppedPreview = await getCroppedImg(cropping.src, croppedAreaPixels, rotation);
-
-    setFiles((prevFiles) => [
-      ...prevFiles,
-      {
-        id: uuidv4(),
-        file: cropping.file,
-        src: cropping.src,
-        cropData: { crop, zoom, croppedAreaPixels, rotation },
-        url: cropping.src,
-        preview: croppedPreview,
-        type: cropping.file.type,
-      },
-    ]);
+  
+    if (cropping.isVideo) {
+      // For video, only save the cropping metadata, not the cropped video itself
+      setFiles((prevFiles) => [
+        ...prevFiles,
+        {
+          id: uuidv4(),
+          file: cropping.file,
+          src: cropping.src,
+          cropData: { crop, zoom, croppedAreaPixels, rotation },
+          preview: cropping.src, // Preview for the video
+          type: "video",
+        },
+      ]);
+    } else {
+      // Handle image cropping
+      try {
+        const croppedPreview = await getCroppedImg(
+          cropping.src,
+          croppedAreaPixels,
+          rotation,
+          { horizontal: false, vertical: false }
+        );
+  
+        setFiles((prevFiles) => [
+          ...prevFiles,
+          {
+            id: uuidv4(),
+            file: cropping.file,
+            src: cropping.src,
+            cropData: { crop, zoom, croppedAreaPixels, rotation },
+            preview: croppedPreview,
+            type: "image",
+          },
+        ]);
+      } catch (error) {
+        console.error("Error cropping image:", error);
+      }
+    }
+  
     setCropping(null);
   };
+  
+  
 
   const handleDelete = async (id) => {
     const fileToDelete = files.find((file) => file.id === id);
@@ -102,12 +197,9 @@ function Upload() {
       await fileToDelete.ref?.delete();
       setFiles((prevFiles) => {
         const updatedFiles = prevFiles.filter((file) => file.id !== id);
-  
-        // If all files are deleted, reset the aspect ratio
         if (updatedFiles.length === 0) {
-          setAspectRatio(null); // Reset aspect ratio when no files are left
+          setAspectRatio(null);
         }
-  
         return updatedFiles;
       });
     }
@@ -145,43 +237,47 @@ function Upload() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null);
-
+  
     if (files.length === 0 || uploading) {
       setError("Please select files.");
       return;
     }
-
+  
     setUploading(true);
-
+  
     try {
       const { lat, lng } = await fetchCoordinates(location.place_name);
-
       const token = await auth.currentUser.getIdToken(true);
-
-      const croppedImages = await Promise.all(
+  
+      const uploadedFiles = await Promise.all(
         files.map(async (file) => {
-          const { cropData } = file;
-
-          if (!cropData || !cropData.croppedAreaPixels) {
-            console.error("Missing or incomplete crop data for file:", file);
-            throw new Error("Missing or incomplete crop data for one or more images.");
-          }
-
-          const { croppedAreaPixels, rotation } = cropData;
-
-          const croppedImage = await getCroppedImg(file.src, croppedAreaPixels, rotation);
-
           const fileId = uuidv4();
           const fileRef = storage.ref().child(`uploads/${user.uid}/${fileId}`);
-          const response = await fetch(croppedImage);
-          const blob = await response.blob();
-          await fileRef.put(blob, { contentType: 'image/jpeg' });
-          const url = await fileRef.getDownloadURL();
-
-          return url;
+          
+          // Custom metadata for cropping
+          const customMetadata = {
+            contentType: file.file.type,
+            customMetadata: {
+              cropData: JSON.stringify({
+                crop: file.cropData.crop,
+                zoom: file.cropData.zoom,
+                croppedAreaPixels: file.cropData.croppedAreaPixels,
+                rotation: file.cropData.rotation
+              }),
+              isVideo: file.type === "video" ? "true" : "false",
+            }
+          };
+  
+          // Upload the file with custom metadata
+          await fileRef.put(file.file, customMetadata);
+  
+          // Get the download URL of the uploaded file
+          const downloadURL = await fileRef.getDownloadURL();
+          return downloadURL;
         })
       );
-
+  
+      // After uploading, send metadata to your Firestore
       const response = await fetch("/api/upload", {
         method: "POST",
         headers: {
@@ -199,14 +295,22 @@ function Upload() {
             },
             date,
             hidden,
-            downloadURLs: croppedImages,
+            downloadURLs: uploadedFiles,
             aspectRatio: aspectRatio,
+            cropData: files.map((file) => ({
+              id: file.id,
+              type: file.type,
+              crop: file.cropData.crop,
+              zoom: file.cropData.zoom,
+              croppedAreaPixels: file.cropData.croppedAreaPixels,
+              rotation: file.cropData.rotation,
+            })),
           },
         }),
       });
-
+  
       const result = await response.json();
-
+  
       if (result.success) {
         setUploading(false);
         router.push("/profile");
@@ -220,6 +324,7 @@ function Upload() {
       setUploading(false);
     }
   };
+  
 
   const onDragEnd = (result) => {
     const { destination, source } = result;
@@ -247,7 +352,8 @@ function Upload() {
                 <div>
                   <div className="relative w-full h-64 md:h-96">
                     <Cropper
-                      image={cropping.src}
+                      image={cropping.type === "image" ? cropping.src : undefined}
+                      video={cropping.type === "video" ? cropping.src : undefined}
                       crop={crop}
                       zoom={zoom}
                       rotation={rotation}
@@ -271,7 +377,7 @@ function Upload() {
                       className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 border border-blue-700 rounded"
                       onClick={handleAddCroppedImage}
                     >
-                      Add Image
+                      Add Image/Video
                     </button>
                   </div>
                 </div>
@@ -325,7 +431,11 @@ function Upload() {
                                   X
                                 </div>
                                 <div className="cursor-pointer" onClick={() => handleImageClick(file)}>
-                                  <img src={file.preview || file.url} alt="Preview" draggable={false} className="w-32 h-32 object-cover" />
+                                  {file.type === "image" ? (
+                                    <img src={file.preview || file.url} alt="Preview" draggable={false} className="w-32 h-32 object-cover" />
+                                  ) : (
+                                    <video src={file.src} className="w-32 h-32 object-cover" controls />
+                                  )}
                                 </div>
                               </div>
                             )}
@@ -337,6 +447,7 @@ function Upload() {
                   </Droppable>
                 </DragDropContext>
               )}
+
               <div className="mt-6">
                 <button
                   type="button"
@@ -444,4 +555,4 @@ function Upload() {
   );
 }
 
-export default Upload;
+export default withAuth(Upload);

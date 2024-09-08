@@ -1,7 +1,12 @@
 import React, { useState, useEffect, useRef } from "react";
+import ReactPlayer from "react-player";
+import { getStorage, ref, getMetadata } from "firebase/storage"; 
 
 const GridSlider = ({ post }) => {
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [fileTypes, setFileTypes] = useState([]); 
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [isMuted, setIsMuted] = useState(true); 
   const sliderRef = useRef(null);
   const totalSlides = post.length;
   const [touchStart, setTouchStart] = useState(null);
@@ -11,17 +16,64 @@ const GridSlider = ({ post }) => {
     sliderRef.current.style.transform = `translateX(-${currentSlide * 100}%)`;
   }, [currentSlide]);
 
+  // Function to determine if the file is an image or video using Firebase metadata
+  const determineFileType = async (fileUrl) => {
+    const storage = getStorage();
+    const fileRef = ref(storage, fileUrl);
+    try {
+      const metadata = await getMetadata(fileRef);
+      const contentType = metadata.contentType;
+
+      if (contentType.startsWith("image/")) {
+        return "image";
+      } else if (contentType.startsWith("video/")) {
+        return "video";
+      } else {
+        return "unknown";
+      }
+    } catch (error) {
+      console.error("Error fetching metadata:", error);
+      return "unknown";
+    }
+  };
+
+  // Fetch the file types (image/video) for all files
+  useEffect(() => {
+    const fetchFileTypes = async () => {
+      const types = await Promise.all(
+        post.map(async (file) => {
+          const fileType = await determineFileType(file.downloadURL);
+          return fileType;
+        })
+      );
+      setFileTypes(types);
+    };
+
+    fetchFileTypes();
+  }, [post]);
+
   const nextSlide = () => {
     setCurrentSlide((prev) => (prev === totalSlides - 1 ? prev : prev + 1));
+    setIsPlaying(false); 
   };
 
   const prevSlide = () => {
     setCurrentSlide((prev) => (prev === 0 ? 0 : prev - 1));
+    setIsPlaying(false); 
   };
 
-  // Touch Handlers for Swipe Gesture
+
+  const handlePlayPause = () => {
+    setIsPlaying((prev) => !prev); 
+  };
+
+  const handleMuteToggle = () => {
+    setIsMuted((prev) => !prev); 
+  };
+
   const handleTouchStart = (e) => {
     setTouchStart(e.targetTouches[0].clientX);
+    handlePlayPause()
   };
 
   const handleTouchMove = (e) => {
@@ -57,23 +109,63 @@ const GridSlider = ({ post }) => {
         {post.map((file, index) => (
           <div
             key={file.id}
-            className="carousel-item w-full h-full flex-shrink-0"
+            className="carousel-item w-full h-full flex-shrink-0 relative"
           >
-            {file.downloadURL.endsWith(".mp4") || file.downloadURL.endsWith(".webm") ? (
-              <video
-              className="block w-full h-full object-contain"
-              controls
-              src={file.downloadURL}
-              alt={`Video ${index}`}
-              autoPlay={currentSlide === index}
-            />
-            ) : (
+            {fileTypes[index] === "video" ? (
+              <div className="relative w-full h-full">
+                <ReactPlayer
+                  url={file.downloadURL}
+                  playing={isPlaying && currentSlide === index} 
+                  muted={isMuted} 
+                  playsinline={true}
+                  className="block w-full h-full object-contain"
+                  controls={false} 
+                  width="100%"
+                  height="100%"
+                />
+                {/* Custom Play/Pause Button */}
+                {!isPlaying && currentSlide === index && (
+                  <div
+                    className="absolute inset-0 flex items-center justify-center cursor-pointer"
+                    onClick={handlePlayPause} // Play video on click
+                  >
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-6">
+                <path fillRule="evenodd" d="M4.5 5.653c0-1.427 1.529-2.33 2.779-1.643l11.54 6.347c1.295.712 1.295 2.573 0 3.286L7.28 19.99c-1.25.687-2.779-.217-2.779-1.643V5.653Z" clip-rule="evenodd" />
+                </svg>
+
+                  </div>
+                )}
+
+                {/* Mute/Unmute Button */}
+                <div className="absolute bottom-9 right-4">
+                  <button
+                    className="text-white bg-black bg-opacity-50 p-2 rounded-full"
+                    onClick={handleMuteToggle}
+                  >
+                    {isMuted ? (
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-6">
+                        <path d="M13.5 4.06c0-1.336-1.616-2.005-2.56-1.06l-4.5 4.5H4.508c-1.141 0-2.318.664-2.66 1.905A9.76 9.76 0 0 0 1.5 12c0 .898.121 1.768.35 2.595.341 1.24 1.518 1.905 2.659 1.905h1.93l4.5 4.5c.945.945 2.561.276 2.561-1.06V4.06ZM17.78 9.22a.75.75 0 1 0-1.06 1.06L18.44 12l-1.72 1.72a.75.75 0 1 0 1.06 1.06l1.72-1.72 1.72 1.72a.75.75 0 1 0 1.06-1.06L20.56 12l1.72-1.72a.75.75 0 1 0-1.06-1.06l-1.72 1.72-1.72-1.72Z" />
+                      </svg>
+                      
+                    ) : (
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-6">
+                    <path d="M13.5 4.06c0-1.336-1.616-2.005-2.56-1.06l-4.5 4.5H4.508c-1.141 0-2.318.664-2.66 1.905A9.76 9.76 0 0 0 1.5 12c0 .898.121 1.768.35 2.595.341 1.24 1.518 1.905 2.659 1.905h1.93l4.5 4.5c.945.945 2.561.276 2.561-1.06V4.06ZM18.584 5.106a.75.75 0 0 1 1.06 0c3.808 3.807 3.808 9.98 0 13.788a.75.75 0 0 1-1.06-1.06 8.25 8.25 0 0 0 0-11.668.75.75 0 0 1 0-1.06Z" />
+                    <path d="M15.932 7.757a.75.75 0 0 1 1.061 0 6 6 0 0 1 0 8.486.75.75 0 0 1-1.06-1.061 4.5 4.5 0 0 0 0-6.364.75.75 0 0 1 0-1.06Z" />
+                    </svg>
+
+                    )}
+                  </button>
+                </div>
+              </div>
+            ) : fileTypes[index] === "image" ? (
               <img
                 src={file.downloadURL}
                 className="block w-full h-full object-contain"
                 alt={`Slide ${index}`}
                 draggable={false}
               />
+            ) : (
+              <div>Unknown file type</div>
             )}
           </div>
         ))}
@@ -118,7 +210,7 @@ const GridSlider = ({ post }) => {
                   stroke="currentColor"
                   strokeLinecap="round"
                   strokeLinejoin="round"
-                  strokeWidth="2"
+                  strokeWidth={2}
                   d="M5 1 1 5l4 4"
                 />
               </svg>
@@ -144,7 +236,7 @@ const GridSlider = ({ post }) => {
                   stroke="currentColor"
                   strokeLinecap="round"
                   strokeLinejoin="round"
-                  strokeWidth="2"
+                  strokeWidth={2}
                   d="M1 9l4-4-4-4"
                 />
               </svg>

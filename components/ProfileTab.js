@@ -6,12 +6,11 @@ import AllComponent from "./AllComponent";
 
 const ProfileTab = ({ userId, posts }) => {
   const [displays, setDisplays] = useState([]);
-  const [activeTab, setActiveTab] = useState("Map");
+  const [activeTab, setActiveTab] = useState("Timeline");
 
   useEffect(() => {
     if (userId) {
       fetchDisplays(userId).then(setDisplays);
-      console.log(displays)
     }
   }, [userId]);
 

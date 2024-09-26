@@ -22,6 +22,7 @@ module.exports = {
         "sage": "#b4c292ff",
         "periwinkle": "#d4dcffff",
         "atomic-tangerine": "#faaa8dff",
+        "laurelgreen": "#a9ba9d"
       },
     },
   },
@@ -29,5 +30,7 @@ module.exports = {
     require("@tailwindcss/forms"),
     require("tailwind-scrollbar"),
     require("tailwind-scrollbar-hide"),
+    require('@tailwindcss/line-clamp'),
+
   ],
 };

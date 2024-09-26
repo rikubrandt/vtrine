@@ -94,7 +94,7 @@ async function cropImage(filePath, cropData, outputFilePath) {
   console.log("Original Crop Data:", cropData);
 
   // Extract values from croppedAreaPixels
-  const { x, y, width, height } = cropData.croppedAreaPixels;  // Use croppedAreaPixels for crop coordinates
+  const { x, y, width, height } = cropData.croppedAreaPixels;
 
   // Round the values to ensure they are integers (Sharp requires integer values)
   const left = Math.round(x);
@@ -102,12 +102,16 @@ async function cropImage(filePath, cropData, outputFilePath) {
   const cropWidth = Math.round(width);
   const cropHeight = Math.round(height);
 
-  // Get the image dimensions
+  // Get the image metadata, including orientation
   const metadata = await sharp(filePath).metadata();
-  const imageWidth = metadata.width;
-  const imageHeight = metadata.height;
+  let { width: imageWidth, height: imageHeight, orientation } = metadata;
 
-  console.log(`Image dimensions: width=${imageWidth}, height=${imageHeight}`);
+  // Adjust width and height based on EXIF orientation (orientation 5-8 requires a swap)
+  if (orientation >= 5 && orientation <= 8) {
+    [imageWidth, imageHeight] = [imageHeight, imageWidth];
+  }
+
+  console.log(`Image dimensions after orientation adjustment: width=${imageWidth}, height=${imageHeight}`);
   console.log(`Rounded Crop Data: left=${left}, top=${top}, width=${cropWidth}, height=${cropHeight}`);
 
   // Ensure the crop region is within the image boundaries
@@ -119,10 +123,12 @@ async function cropImage(filePath, cropData, outputFilePath) {
 
   // Perform the crop operation
   return sharp(filePath)
+    .rotate()  // Rotate image based on EXIF orientation
     .extract({ left: left, top: top, width: cropWidth, height: cropHeight })
-    .rotate(cropData.rotation)  // Apply rotation if needed
+    .rotate(cropData.rotation)  // Apply any additional rotation from user crop data
     .toFile(outputFilePath);
 }
+
 
 // Function to crop videos using FFmpeg
 async function cropVideo(filePath, cropData, outputFilePath) {

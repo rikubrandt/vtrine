@@ -47,5 +47,7 @@
 | 7.9.2024  | 1   | Notifications page, make auth pages not flash stuff before load complete |
 |           | 4   | Support video cropping start.                                     |
 | 8.9.2024  | 4   | Now it supports video cropping with cloud functions               |
+| 25.9.2024 | 2   | Debugging why video is not working properly on mobile             |
+| 26.9.2024 | 3   | Make timeline take less space, rework design on modals etc.       |
 
 | Sum | x | |

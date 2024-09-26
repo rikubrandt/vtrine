@@ -166,10 +166,6 @@ transform: translateX(-100%);
     overflow: hidden;
   }
   
-  /* Scroll snapping effect for mobile */
-  body {
-    scroll-snap-type: y mandatory;
-  }
   
   @media (max-width: 768px) {
     .map-container {
@@ -211,3 +207,9 @@ transform: translateX(-100%);
   button {
     transition: background-color 0.2s ease, color 0.2s ease;
   }
+
+  .wrap {
+    width: 100%;
+    position: relative;
+  }
+  

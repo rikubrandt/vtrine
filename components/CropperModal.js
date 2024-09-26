@@ -28,19 +28,31 @@ export const CropperModal = ({ showModal, setShowModal, onSave, currentFile, asp
 
   const handleSave = async () => {
     try {
-      const croppedImageBlobUrl = await getCroppedImg(imageSrc, croppedAreaPixels, rotation);
-      onSave(
-        {
-          ...currentFile,
-          cropData: { crop, zoom, croppedAreaPixels, rotation },
-        },
-        croppedImageBlobUrl // Pass the blob URL for further processing
-      );
+      if (currentFile.type === 'image') {
+        const croppedImageBlobUrl = await getCroppedImg(imageSrc, croppedAreaPixels, rotation);
+        onSave(
+          {
+            ...currentFile,
+            cropData: { crop, zoom, croppedAreaPixels, rotation },
+          },
+          croppedImageBlobUrl
+        );
+      } else {
+        // For videos, just save the crop data
+        onSave(
+          {
+            ...currentFile,
+            cropData: { crop, zoom, croppedAreaPixels, rotation },
+          },
+          null
+        );
+      }
       setShowModal(false);
     } catch (error) {
-      console.error("Error cropping image:", error);
+      console.error("Error cropping media:", error);
     }
   };
+  
 
   if (!showModal) return null;
 
@@ -60,17 +72,19 @@ export const CropperModal = ({ showModal, setShowModal, onSave, currentFile, asp
         </div>
         <div className="relative p-4">
           <div className="relative w-full h-64 md:h-96">
-            <Cropper
-              image={imageSrc}
-              crop={crop}
-              zoom={zoom}
-              rotation={rotation}
-              aspect={aspectRatio}
-              onCropChange={setCrop}
-              onZoomChange={setZoom}
-              onRotationChange={setRotation}
-              onCropComplete={onCropComplete}
+          <Cropper
+            image={currentFile.type === 'image' ? imageSrc : undefined}
+            video={currentFile.type === 'video' ? imageSrc : undefined}
+            crop={crop}
+            zoom={zoom}
+            rotation={rotation}
+            aspect={aspectRatio}
+            onCropChange={setCrop}
+            onZoomChange={setZoom}
+            onRotationChange={setRotation}
+            onCropComplete={onCropComplete}
             />
+
           </div>
         </div>
         <div className="flex justify-end p-4 border-t">

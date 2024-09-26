@@ -50,4 +50,4 @@
 | 25.9.2024 | 2   | Debugging why video is not working properly on mobile             |
 | 26.9.2024 | 3   | Make timeline take less space, rework design on modals etc.       |
 
-| Sum | x | |
+| Sum | 120 | |

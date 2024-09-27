@@ -37,8 +37,7 @@ export const CropperModal = ({ showModal, setShowModal, onSave, currentFile, asp
           },
           croppedImageBlobUrl
         );
-      } else {
-        // For videos, just save the crop data
+      } else if (currentFile.type === 'video') {
         onSave(
           {
             ...currentFile,
@@ -52,6 +51,7 @@ export const CropperModal = ({ showModal, setShowModal, onSave, currentFile, asp
       console.error("Error cropping media:", error);
     }
   };
+  
   
 
   if (!showModal) return null;
@@ -77,11 +77,11 @@ export const CropperModal = ({ showModal, setShowModal, onSave, currentFile, asp
             video={currentFile.type === 'video' ? imageSrc : undefined}
             crop={crop}
             zoom={zoom}
-            rotation={rotation}
+            rotation={0}
             aspect={aspectRatio}
             onCropChange={setCrop}
             onZoomChange={setZoom}
-            onRotationChange={setRotation}
+            //onRotationChange={setRotation}
             onCropComplete={onCropComplete}
             />
 

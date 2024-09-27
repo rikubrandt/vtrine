@@ -6,7 +6,6 @@ const os = require('os');
 const path = require('path');
 const fs = require('fs');
 
-// Initialize Firebase Admin SDK
 admin.initializeApp();
 const db = admin.firestore();
 const bucket = admin.storage().bucket();
@@ -14,7 +13,7 @@ const bucket = admin.storage().bucket();
 exports.processMedia = functions
   .runWith({
     memory: '1GB',  // Increase memory to 1GB
-    timeoutSeconds: 300 // Optionally increase the timeout to handle large files
+    timeoutSeconds: 300 
   })
   .storage.object().onFinalize(async (object) => {
     const filePath = object.name;
@@ -88,25 +87,19 @@ exports.processMedia = functions
     }
   });
 
-// Function to crop images using Sharp
 async function cropImage(filePath, cropData, outputFilePath) {
-  // Log the incoming crop data
   console.log("Original Crop Data:", cropData);
 
-  // Extract values from croppedAreaPixels
   const { x, y, width, height } = cropData.croppedAreaPixels;
 
-  // Round the values to ensure they are integers (Sharp requires integer values)
   const left = Math.round(x);
   const top = Math.round(y);
   const cropWidth = Math.round(width);
   const cropHeight = Math.round(height);
 
-  // Get the image metadata, including orientation
   const metadata = await sharp(filePath).metadata();
   let { width: imageWidth, height: imageHeight, orientation } = metadata;
 
-  // Adjust width and height based on EXIF orientation (orientation 5-8 requires a swap)
   if (orientation >= 5 && orientation <= 8) {
     [imageWidth, imageHeight] = [imageHeight, imageWidth];
   }
@@ -114,59 +107,49 @@ async function cropImage(filePath, cropData, outputFilePath) {
   console.log(`Image dimensions after orientation adjustment: width=${imageWidth}, height=${imageHeight}`);
   console.log(`Rounded Crop Data: left=${left}, top=${top}, width=${cropWidth}, height=${cropHeight}`);
 
-  // Ensure the crop region is within the image boundaries
   if (left < 0 || top < 0 || cropWidth <= 0 || cropHeight <= 0 ||
       left + cropWidth > imageWidth || top + cropHeight > imageHeight) {
     console.error(`Invalid crop dimensions: left=${left}, top=${top}, width=${cropWidth}, height=${cropHeight}`);
     throw new Error("Invalid crop dimensions. Crop region exceeds image boundaries.");
   }
 
-  // Perform the crop operation
   return sharp(filePath)
-    .rotate()  // Rotate image based on EXIF orientation
+    .rotate()  
     .extract({ left: left, top: top, width: cropWidth, height: cropHeight })
-    .rotate(cropData.rotation)  // Apply any additional rotation from user crop data
+    .rotate(cropData.rotation)  
     .toFile(outputFilePath);
 }
 
 
-// Function to crop videos using FFmpeg
 async function cropVideo(filePath, cropData, outputFilePath) {
-  const { croppedAreaPixels, zoom } = cropData;
-  let { x, y, width, height } = croppedAreaPixels;
-
-  // Adjust for zoom factor by scaling width, height, x, and y
-  width = Math.round(width / zoom);
-  height = Math.round(height / zoom);
-  x = Math.max(0, Math.round(x / zoom)); // Ensure x is not negative
-  y = Math.max(0, Math.round(y / zoom)); // Ensure y is not negative
-
-  // Get the dimensions of the video using ffmpeg
-  let videoInfo = await getVideoInfo(filePath);
-  if (x + width > videoInfo.width || y + height > videoInfo.height) {
-    throw new Error("Crop dimensions exceed video boundaries.");
-  }
-
-  console.log(`Cropping video with width: ${width}, height: ${height}, x: ${x}, y: ${y}`);
+    const { croppedAreaPixels } = cropData;
+    const { x, y, width, height } = croppedAreaPixels;
   
-  return new Promise((resolve, reject) => {
-    ffmpeg(filePath)
-      .videoFilters([
-        {
-          filter: 'crop',
-          options: `${width}:${height}:${x}:${y}`
-        }
-      ])
-      .on('end', () => resolve(outputFilePath))
-      .on('error', (error) => {
-        console.error('Error during video processing with ffmpeg:', error);
-        reject(error);
-      })
-      .save(outputFilePath);
-  });
-}
+    let videoInfo = await getVideoInfo(filePath);
+    if (x + width > videoInfo.width || y + height > videoInfo.height) {
+      throw new Error("Crop dimensions exceed video boundaries.");
+    }
+  
+    console.log(`Cropping video with width: ${width}, height: ${height}, x: ${x}, y: ${y}`);
+    
+    return new Promise((resolve, reject) => {
+      ffmpeg(filePath)
+        .videoFilters([
+          {
+            filter: 'crop',
+            options: `${width}:${height}:${x}:${y}`
+          }
+        ])
+        .on('end', () => resolve(outputFilePath))
+        .on('error', (error) => {
+          console.error('Error during video processing with ffmpeg:', error);
+          reject(error);
+        })
+        .save(outputFilePath);
+    });
+  }
+  
 
-// Helper function to get video dimensions and duration using ffmpeg
 function getVideoInfo(filePath) {
   return new Promise((resolve, reject) => {
     ffmpeg.ffprobe(filePath, (err, metadata) => {

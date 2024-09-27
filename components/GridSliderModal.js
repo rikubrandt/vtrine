@@ -20,24 +20,29 @@ const GridSliderModal = ({ post, onClose }) => {
   }, [onClose]);
 
   return (
-    <div className="fixed inset-0 z-50 overflow-auto bg-black bg-opacity-50 flex items-center justify-center">
+    <div
+      className="fixed inset-0 z-50 overflow-auto bg-black bg-opacity-50 flex items-center justify-center"
+      style={{
+        paddingTop: "env(safe-area-inset-top)",
+        paddingBottom: "env(safe-area-inset-bottom)",
+      }}
+    >
       {/* Modal content wrapper */}
       <div
         ref={modalRef}
-        className="bg-white w-full max-w-lg md:max-w-3xl lg:max-w-5xl xl:max-w-6xl mx-4 md:mx-6 rounded-lg overflow-hidden"
+        className="bg-white w-full h-svh max-w-lg md:max-w-3xl lg:max-w-5xl xl:max-w-6xl mx-4 md:mx-6 rounded-lg overflow-hidden"
       >
         {/* Modal content */}
         <div className="flex flex-col md:flex-row">
           {/* Media Section */}
-          <div className="w-full md:w-2/3 h-64 md:h-auto">
+          <div className="w-full md:w-2/3 max-h-[70vh] md:max-h-none overflow-hidden flex items-center justify-center">
             {post.files && post.files.length > 0 && (
-              <div className="w-full h-full box-border">
+              <div className="w-full h-full">
                 <GridSlider
                   post={post.files.map((url, i) => ({
                     id: `${post.id}-${i}`,
                     downloadURL: url,
                   }))}
-                  className="w-full h-full object-contain"
                 />
               </div>
             )}

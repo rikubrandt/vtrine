@@ -16,18 +16,32 @@ import SearchBar from "./SearchBar";
 
 function Header() {
   const [isOpen, setIsOpen] = useState(false);
-  const { username, image, name, loading } = useContext(UserContext); 
+  const { username, image, name, loading } = useContext(UserContext);
 
   const toggleMenu = () => {
     setIsOpen(!isOpen);
   };
 
   if (loading) {
-    return <div className="shadow-sm border-b bg-white sticky top-0 z-50"></div>
+    return (
+      <div className="shadow-sm border-b bg-white md:sticky md:top-0 z-50">
+        <div className="flex justify-between max-w-6xl mx-5 lg:mx-auto">
+          <div className="relative w-24 h-10 bg-gray-200 animate-pulse rounded"></div>
+
+          <div className="w-1/3 h-10 bg-gray-200 animate-pulse rounded"></div>
+
+          <div className="flex items-center space-x-4">
+            <div className="w-8 h-8 bg-gray-200 animate-pulse rounded-full"></div>
+            <div className="w-8 h-8 bg-gray-200 animate-pulse rounded-full"></div>
+          </div>
+        </div>
+      </div>
+    );
   }
 
+
   return (
-    <div className="shadow-sm border-b bg-white sticky top-0 z-50">
+    <div className="shadow-sm border-b bg-white md:sticky md:top-0 z-50">
       {isOpen && (
         <div
           className={`absolute right-0 top-16 mt-2 w-48 bg-white rounded-md overflow-hidden shadow-xl z-50`}
@@ -78,7 +92,7 @@ function Header() {
         <div className="relative hidden lg:inline-grid w-24 cursor-pointer">
           <Link href="/">
             <Image
-              src="/logoshit.png?key=123"
+              src="/logomini.png?key=123"
               fill
               style={{ objectFit: "contain" }}
               alt="Logo"
@@ -100,7 +114,7 @@ function Header() {
         <SearchBar />
 
         {/* MENU ITEMS */}
-        <div className="flex items-center justify-end space-x-4">
+        <div className="flex items-center justify-end md:space-x-4 space-x-1" >
           {/* Conditionally render based on username */}
           {username ? (
             <>
@@ -113,12 +127,6 @@ function Header() {
               />
               <div className="relative navBtn">
                 <PaperAirplaneIcon className="navBtn" />
-                <div
-                  className="absolute -top-1 -right-2 text-xs w-5 h-5 
-                 bg-red-500 rounded-full flex items-center justify-center animate-pulse text-white"
-                >
-                  3
-                </div>
               </div>
               <Link href="/add">
                 <PlusCircleIcon className="navBtn" />
@@ -129,24 +137,29 @@ function Header() {
               <Link href="/notifications">
                 <HeartIcon className="navBtn" />
               </Link>
-              <Link href="/design">
-                <ArchiveBoxIcon className="navBtn" />
-              </Link>
+
 
               <Link href="/[username]" as={`/${username}`}>
                 <img
-                  src={image ? image : "./placeholder.jpg"}
-                  alt="profile pic"
-                  className="h-14 rounded-full cursor-pointer"
+                    src={image ? image : "./placeholder.jpg"}
+                    alt="profile pic"
+                    className="h-10 w-10 md:h-14 md:w-14 rounded-full object-fit cursor-pointer flex-shrink-0"
                 />
-              </Link>
+                </Link>
             </>
           ) : (
-            <Link href="/login">
-              <button className="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded shadow">
-                Sign In
-              </button>
-            </Link>
+            <>
+              <Link href="/login">
+                <button className="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded shadow">
+                  Login
+                </button>
+              </Link>
+              <Link href="/register">
+                <button className="bg-indigo-500 hover:bg-indigo-600 text-white font-semibold py-2 px-4 rounded shadow">
+                  Register
+                </button>
+              </Link>
+            </>
           )}
         </div>
       </div>

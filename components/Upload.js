@@ -35,7 +35,6 @@ function Upload() {
   const { user } = useContext(UserContext);
   const [showModal, setShowModal] = useState(false);
 
-  // Function to check file type and handle accordingly
   const handleFileChange = async (e) => {
     const file = e.target.files[0];
     const imageTypes = ["jpeg", "png", "webp", "bmp"];
@@ -78,44 +77,6 @@ function Upload() {
   };
   
   
-  // Function to extract a frame from the video
-  const extractVideoFrame = (videoUrl) => {
-    return new Promise((resolve, reject) => {
-      const video = document.createElement("video");
-      video.src = videoUrl;
-      video.crossOrigin = "anonymous"; 
-
-      video.addEventListener("error", (error) => {
-        console.error("Error loading video:", error);
-        reject("Error loading video");
-      });
-  
-      video.addEventListener("loadeddata", () => {
-        try {
-          video.currentTime = 1; 
-        } catch (error) {
-          console.error("Error seeking video:", error);
-          reject("Error seeking video");
-        }
-      });
-  
-      video.addEventListener("seeked", () => {
-        try {
-          const canvas = document.createElement("canvas");
-          canvas.width = video.videoWidth;
-          canvas.height = video.videoHeight;
-          const ctx = canvas.getContext("2d");
-          ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-          const frameUrl = canvas.toDataURL("image/jpeg");
-          resolve(frameUrl); 
-        } catch (error) {
-          console.error("Error extracting video frame:", error);
-          reject("Error extracting video frame");
-        }
-      });
-    });
-  };
-  
   const determineAspectRatio = (file) => {
     return new Promise((resolve) => {
       const fileUrl = URL.createObjectURL(file);
@@ -148,7 +109,6 @@ function Upload() {
     }
   
     if (cropping.isVideo) {
-      // For video, only save the cropping metadata, not the cropped video itself
       setFiles((prevFiles) => [
         ...prevFiles,
         {
@@ -161,7 +121,6 @@ function Upload() {
         },
       ]);
     } else {
-      // Handle image cropping
       try {
         const croppedPreview = await getCroppedImg(
           cropping.src,
@@ -211,17 +170,41 @@ function Upload() {
   };
 
   const handleSaveCroppedImage = async (updatedFile, croppedImageBlob) => {
-    const croppedPreview = await getCroppedImg(updatedFile.src, updatedFile.cropData.croppedAreaPixels, updatedFile.cropData.rotation);
-
-    setFiles((prevFiles) =>
-      prevFiles.map((file) =>
-        file.id === updatedFile.id
-          ? { ...updatedFile, url: croppedImageBlob, cropData: updatedFile.cropData, preview: croppedPreview }
-          : file
-      )
-    );
+    if (updatedFile.type === 'image') {
+      // For images, generate a new cropped preview
+      const croppedPreview = await getCroppedImg(
+        updatedFile.src,
+        updatedFile.cropData.croppedAreaPixels,
+        updatedFile.cropData.rotation
+      );
+  
+      setFiles((prevFiles) =>
+        prevFiles.map((file) =>
+          file.id === updatedFile.id
+            ? {
+                ...updatedFile,
+                url: croppedImageBlob,
+                cropData: updatedFile.cropData,
+                preview: croppedPreview,
+              }
+            : file
+        )
+      );
+    } else if (updatedFile.type === 'video') {
+      setFiles((prevFiles) =>
+        prevFiles.map((file) =>
+          file.id === updatedFile.id
+            ? {
+                ...updatedFile,
+                cropData: updatedFile.cropData,
+              }
+            : file
+        )
+      );
+    }
     setShowModal(false);
   };
+  
 
   const fetchCoordinates = async (placeName) => {
     const response = await fetch(
@@ -268,7 +251,6 @@ function Upload() {
             }
           };
   
-          // Upload the file with custom metadata
           await fileRef.put(file.file, customMetadata);
   
 
@@ -356,11 +338,11 @@ function Upload() {
                         video={cropping.type === "video" ? cropping.src : undefined}
                         crop={crop}
                         zoom={zoom}
-                        rotation={rotation}
+                        rotation={0}
                         aspect={aspectRatio}
                         onCropChange={setCrop}
                         onZoomChange={setZoom}
-                        onRotationChange={setRotation}
+                       // onRotationChange={setRotation}
                         onCropComplete={onCropComplete}
                     />
                     </div>
@@ -408,62 +390,57 @@ function Upload() {
               )}
               {files.length > 0 && (
                 <DragDropContext onDragEnd={onDragEnd}>
-                  <Droppable droppableId="files" direction="horizontal">
+                    <Droppable droppableId="files" direction="horizontal">
                     {(provided) => (
-                      <div
+                        <div
                         {...provided.droppableProps}
                         ref={provided.innerRef}
                         className="flex overflow-x-auto"
-                      >
+                        >
                         {files.map((file, index) => (
-  <Draggable key={file.id} draggableId={file.id} index={index}>
-    {(provided) => (
-      <div
-        ref={provided.innerRef}
-        {...provided.draggableProps}
-        {...provided.dragHandleProps}
-        className="relative inline-block mx-2"
-      >
-        <div
-          className="absolute top-0 right-0 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center cursor-pointer z-10"
-          onClick={() => handleDelete(file.id)}
-        >
-          X
-        </div>
-        <div className="cursor-pointer" onClick={() => handleImageClick(file)}>
-          {file.type === "image" ? (
-            <img
-              src={file.preview || file.url}
-              alt="Preview"
-              draggable={false}
-              className="w-32 h-32 object-cover"
-            />
-          ) : (
-            <div
-              className="w-32 h-32 overflow-hidden relative"
-            >
-              <video
-                src={file.src}
-                className="absolute inset-0 w-full h-full object-cover"
-                style={{
-                  transform: `scale(${file.cropData?.zoom || 1}) rotate(${file.cropData?.rotation || 0}deg)`,
-                }}
-                controls
-              />
-            </div>
-          )}
-        </div>
-      </div>
-    )}
-  </Draggable>
-))}
-
+                            <Draggable key={file.id} draggableId={file.id} index={index}>
+                            {(provided) => (
+                                <div
+                                ref={provided.innerRef}
+                                {...provided.draggableProps}
+                                {...provided.dragHandleProps}
+                                className="relative inline-block mx-2"
+                                >
+                                <div
+                                    className="absolute top-0 right-0 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center cursor-pointer z-10"
+                                    onClick={() => handleDelete(file.id)}
+                                >
+                                    X
+                                </div>
+                                <div className="cursor-pointer" onClick={() => handleImageClick(file)}>
+                                    {file.type === "image" ? (
+                                    <img
+                                        src={file.preview || file.url}
+                                        alt="Preview"
+                                        draggable={false}
+                                        className="w-32 h-32 object-cover"
+                                    />
+                                    ) : (
+                                    <div className="w-32 h-32 overflow-hidden relative">
+                                        <video
+                                        src={file.src}
+                                        className="absolute inset-0 w-full h-full object-cover"
+                                        controls={false}
+                                        />
+                                    </div>
+                                    )}
+                                </div>
+                                </div>
+                            )}
+                            </Draggable>
+                        ))}
                         {provided.placeholder}
-                      </div>
+                        </div>
                     )}
-                  </Droppable>
+                    </Droppable>
                 </DragDropContext>
-              )}
+                )}
+
 
               <div className="mt-6">
                 <button

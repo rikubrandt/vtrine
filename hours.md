@@ -49,5 +49,6 @@
 | 8.9.2024  | 4   | Now it supports video cropping with cloud functions               |
 | 25.9.2024 | 2   | Debugging why video is not working properly on mobile             |
 | 26.9.2024 | 3   | Make timeline take less space, rework design on modals etc.       |
+| 28.9.2024 | 2   | Fix bug in cropping, update header to look more clean             |
 
-| Sum | 120 | |
+| Sum | 122 | |

@@ -220,13 +220,18 @@ function Upload() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null);
+    
+    // Prevent form submission if already uploading
+    if (uploading) {
+      return;
+    }
   
     if (files.length === 0 || uploading) {
       setError("Please select files.");
       return;
     }
   
-    setUploading(true);
+    setUploading(true); // Disable the button by setting uploading to true
   
     try {
       const { lat, lng } = await fetchCoordinates(location.place_name);
@@ -253,13 +258,11 @@ function Upload() {
   
           await fileRef.put(file.file, customMetadata);
   
-
           const downloadURL = await fileRef.getDownloadURL();
           return downloadURL;
         })
       );
   
-
       const response = await fetch("/api/upload", {
         method: "POST",
         headers: {
@@ -303,9 +306,10 @@ function Upload() {
     } catch (error) {
       console.error("Error creating post:", error);
       setError(error.message);
-      setUploading(false);
+      setUploading(false); 
     }
   };
+  
   
 
   const onDragEnd = (result) => {
@@ -516,20 +520,24 @@ function Upload() {
               </div>
               <div className="block mt-6">
                 <button
-                  type="button"
-                  className="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 border border-gray-700 rounded mr-4"
-                  onClick={() => setStep(1)}
+                    type="button"
+                    className="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 border border-gray-700 rounded mr-4"
+                    onClick={() => setStep(1)}
+                    disabled={uploading} 
                 >
-                  Back
+                    Back
                 </button>
                 <button
-                  className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 border border-blue-700 rounded"
-                  type="submit"
-                  disabled={uploading}
+                    className={`bg-blue-500 text-white font-bold py-2 px-4 border border-blue-700 rounded ${
+                    uploading ? "cursor-not-allowed opacity-50" : "hover:bg-blue-700"
+                    }`}
+                    type="submit"
+                    disabled={uploading} 
                 >
-                  Create
+                    {uploading ? "Uploading..." : "Create"}
                 </button>
-              </div>
+                </div>
+
             </div>
           </div>
         )}

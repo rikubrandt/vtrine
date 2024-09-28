@@ -332,7 +332,7 @@ function Upload() {
       <form onSubmit={handleSubmit}>
         {step === 1 && (
           <div className="py-12">
-            <h2 className="text-2xl font-bold">Upload and Edit Files</h2>
+            <h2 className="text-2xl font-bold">Create new post</h2>
             <div className="mt-8 max-w-md">
               {cropping ? (
                 <div>

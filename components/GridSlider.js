@@ -16,7 +16,7 @@ const GridSlider = ({ post }) => {
   const totalSlides = post.length;
   const [touchStart, setTouchStart] = useState(null);
   const [touchEnd, setTouchEnd] = useState(null);
-  const [allProcessed, setAllProcessed] = useState(false);
+  const [allProcessed, setAllProcessed] = useState(true);
 
   useEffect(() => {
     if (sliderRef.current) {

@@ -52,7 +52,6 @@ const GridSlider = ({ post }) => {
     }
   };
 
-  // Fetch the file types (image/video) for all files
   useEffect(() => {
     const fetchFileTypes = async () => {
       const types = await Promise.all(
@@ -62,7 +61,6 @@ const GridSlider = ({ post }) => {
         })
       );
       setFileTypes(types);
-      // Check if all files are processed
       const allProcessed = types.every((type) => type !== "processing");
       setAllProcessed(allProcessed);
     };
@@ -80,12 +78,13 @@ const GridSlider = ({ post }) => {
     setIsPlaying(false);
   };
 
-  const handlePlayPause = () => {
+  const handlePlayPause = (e) => {
+    e.stopPropagation(); 
     setIsPlaying((prev) => !prev);
   };
 
   const handleMuteToggle = (e) => {
-    e.stopPropagation();
+    e.stopPropagation(); 
     setIsMuted((prev) => !prev);
   };
 
@@ -123,7 +122,7 @@ const GridSlider = ({ post }) => {
 
   return (
     <div className="relative w-full h-full overflow-hidden">
-      {/* Carousel wrapper */}
+
       <div
         className="carousel-wrapper flex transition-transform duration-500 ease-in-out h-full"
         ref={sliderRef}
@@ -139,7 +138,8 @@ const GridSlider = ({ post }) => {
             {fileTypes[index] === "video" ? (
               <div
                 className="relative w-full h-full flex items-center justify-center"
-                onClick={handlePlayPause}
+                onClick={handlePlayPause} 
+                onTouchEnd={(e) => e.stopPropagation()} 
               >
                 <ReactPlayer
                   url={file.downloadURL}
@@ -147,27 +147,27 @@ const GridSlider = ({ post }) => {
                   muted={isMuted}
                   playsinline={true}
                   loop={true}
-                  className="w-full h-full object-contain"
+                  className="w-full h-full"
                   controls={false}
                   width="100%"
                   height="100%"
+                  style={{ objectFit: "contain" }} 
                 />
-                {/* Play Button (only when video is paused) */}
                 {!isPlaying && currentSlide === index && (
                   <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                    {/* Play Icon */}
                     <PlayIcon className="w-12 h-12 text-white" />
                   </div>
                 )}
-                {/* Mute/Unmute Button */}
                 {currentSlide === index && (
-                  <div className="absolute bottom-9 right-4">
+                  <div className="absolute top-20 right-4 z-40"> 
                     <button
                       className="text-white bg-black bg-opacity-50 p-2 rounded-full"
-                      onClick={handleMuteToggle}
+                      onClick={(e) => {
+                        e.stopPropagation(); 
+                        handleMuteToggle(e);
+                      }}
                     >
                       {isMuted ? (
-                        /* Mute Icon */
                         <SpeakerXMarkIcon className="w-6 h-6 text-white" />
                       ) : (
                         <SpeakerWaveIcon className="w-6 h-6 text-white" />
@@ -190,7 +190,6 @@ const GridSlider = ({ post }) => {
         ))}
       </div>
 
-      {/* Slider indicators */}
       {totalSlides > 1 && (
         <div className="absolute bottom-4 left-1/2 z-30 flex space-x-2 transform -translate-x-1/2">
           {post.map((_, index) => (
@@ -211,7 +210,6 @@ const GridSlider = ({ post }) => {
         </div>
       )}
 
-      {/* Slider controls */}
       {totalSlides > 1 && (
         <>
           {currentSlide > 0 && (
@@ -233,7 +231,7 @@ const GridSlider = ({ post }) => {
                   strokeLinecap="round"
                   strokeLinejoin="round"
                   strokeWidth={2}
-                  d="M5 1 1 5l4 4"
+                  d="M5 1L1 5l4 4"
                 />
               </svg>
               <span className="sr-only">Previous</span>

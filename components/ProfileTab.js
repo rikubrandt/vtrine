@@ -5,27 +5,20 @@ import Timeline from "./Timeline";
 import AllComponent from "./AllComponent";
 
 const ProfileTab = ({ userId, posts }) => {
-  const [displays, setDisplays] = useState([]);
   const [activeTab, setActiveTab] = useState("Timeline");
-
-  useEffect(() => {
-    if (userId) {
-      fetchDisplays(userId).then(setDisplays);
-    }
-  }, [userId]);
 
   const renderActiveTab = () => {
     switch (activeTab) {
       case "Map":
-        return <MapDisplay displays={displays} />;
+        return <MapDisplay displays={posts} />;
       case "Timeline":
         return (
             <div className="timeline-wrapper">
-              <Timeline displays={displays} />
+              <Timeline displays={posts} />
             </div>
           );
           case "All":
-        return <AllComponent displays={displays} />;
+        return <AllComponent displays={posts} />;
       default:
         return null;
     }
@@ -33,7 +26,6 @@ const ProfileTab = ({ userId, posts }) => {
 
   return (
     <div className="profile-page container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4">Profile</h1>
       <div className="border-b border-gray-200 dark:border-gray-700">
         <ul className="flex flex-wrap -mb-px text-sm font-medium text-center text-gray-500 dark:text-gray-400">
           <li className="mr-2">

@@ -11,6 +11,8 @@ import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import { CropperModal } from "./CropperModal";
 import { withAuth } from "./withAuth";
 import fileTypeChecker from 'file-type-checker';
+import {PhotoIcon
+  } from "@heroicons/react/24/solid";
 
 const AddressAutofill = dynamic(() => import('@mapbox/search-js-react').then(mod => mod.AddressAutofill), { ssr: false });
 
@@ -369,28 +371,36 @@ function Upload() {
                 </div>
               ) : (
                 <div className="grid grid-cols-1 gap-6">
-                  <label
-                    className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-                    htmlFor="file_input"
-                  >
-                    Upload files
-                  </label>
-                  <input
-                    className="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400"
-                    aria-describedby="file_input_help"
-                    id="file_input"
-                    type="file"
-                    accept="image/*,video/*"
-                    onChange={handleFileChange}
-                  />
-                  <p
-                    className="mt-1 text-sm text-gray-500 dark:text-gray-300"
-                    id="file_input_help"
-                  >
-                    Upload images or videos one by one.
-                  </p>
-                  <Loader show={uploading} />
-                </div>
+  <label
+    className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+    htmlFor="file_input"
+  >
+    Upload files
+  </label>
+  <div className="relative w-full h-36 flex items-center justify-center border-2 border-dashed border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:bg-gray-700 dark:border-gray-600 hover:border-indigo-500 focus-within:border-indigo-500 transition-colors duration-200 ease-in-out">
+    <input
+      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+      id="file_input"
+      type="file"
+      accept="image/*,video/*"
+      onChange={handleFileChange}
+    />
+    <div className="text-center">
+      <PhotoIcon className="ml-20 h-10 w-10"/>
+      <p className="mt-2 text-sm text-gray-500 dark:text-gray-300">
+        Click to upload <span className="font-medium">images or videos</span>
+      </p>
+      <p className="text-xs text-gray-400">Supported formats: JPG, PNG, MP4</p>
+    </div>
+  </div>
+  <p
+    className="mt-1 text-sm text-gray-500 dark:text-gray-300"
+    id="file_input_help"
+  >
+    Upload images or videos one by one.
+  </p>
+  <Loader show={uploading} />
+</div>
               )}
               {files.length > 0 && (
                 <DragDropContext onDragEnd={onDragEnd}>
@@ -487,14 +497,31 @@ function Upload() {
                 </AddressAutofill>
               </label>
               <label className="block mt-6">
-                <span className="text-gray-700">Date</span>
+            <span className="text-gray-700 text-lg font-medium">Date</span>
+            <div className="relative">
                 <input
-                  type="date"
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
-                  onChange={(e) => setDate(e.target.value)}
-                  required
+                type="date"
+                className="mt-2 block w-full pl-10 pr-4 py-2 bg-white border border-gray-300 rounded-lg shadow-sm text-gray-800 placeholder-gray-400 text-base focus:outline-none focus:border-indigo-500 focus:ring focus:ring-indigo-300 focus:ring-opacity-50 hover:border-indigo-400 transition ease-in-out duration-200"
+                onChange={(e) => setDate(e.target.value)}
+                required
                 />
-              </label>
+                <div className="absolute left-2 top-3 text-gray-400 pointer-events-none">
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-5 w-5"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                >
+                    <path
+                    fillRule="evenodd"
+                    d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zM4 8h12v8H4V8z"
+                    clipRule="evenodd"
+                    />
+                </svg>
+                </div>
+            </div>
+            </label>
+
               <label className="block mt-6">
                 <span className="text-gray-700">Caption</span>
                 <textarea
@@ -507,14 +534,27 @@ function Upload() {
               <div className="block mt-6">
                 <div className="mt-2">
                   <div>
-                    <label className="inline-flex items-center">
-                      <input
-                        type="checkbox"
-                        className="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-offset-0 focus:ring-indigo-200 focus:ring-opacity-50"
-                        onChange={(e) => setHidden(e.target.checked)}
-                      />
-                      <span className="ml-2">Hidden</span>
-                    </label>
+                  <label className="flex items-center cursor-pointer mt-4">
+  <div className="relative">
+    <input
+      type="checkbox"
+      className="sr-only"
+      onChange={(e) => setHidden(!e.target.checked)}
+    />
+    <div
+      className={`block w-14 h-8 rounded-full transition-colors duration-300 ${
+        hidden ? "bg-red-200" : "bg-green-200"
+      }`}
+    ></div>
+    <div
+      className={`dot absolute left-1 top-1 bg-white w-6 h-6 rounded-full transition-transform duration-300 ${
+        hidden ? "" : "translate-x-6"
+      }`}
+    ></div>
+  </div>
+  <span className="ml-3 text-lg font-medium text-gray-700">Public</span>
+</label>
+
                   </div>
                 </div>
               </div>

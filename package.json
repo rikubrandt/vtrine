@@ -20,6 +20,7 @@
     "@tailwindcss/forms": "^0.5.3",
     "@tailwindcss/line-clamp": "^0.4.4",
     "array-move": "^4.0.0",
+    "date-fns": "^4.1.0",
     "file-type-checker": "^1.1.1",
     "firebase": "^9.23.0",
     "firebase-admin": "^11.11.1",

@@ -52,4 +52,6 @@
 | 28.9.2024 | 2   | Fix bug in cropping, update header to look more clean             |
 | 29.9.2024 | 4   | Make the modals much more cleaner especially on mobile.           |
 | 30.9.2024 | 2   | Landing page for the site.                                        |
-| Sum | 128 | |
+| 15.10.2024 | 2   | Fix date in timeline, Better the upload design.                                        |
+
+| Sum | 130 | |

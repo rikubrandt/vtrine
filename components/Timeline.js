@@ -1,27 +1,32 @@
 import React from "react";
 import GridSlider from "./GridSlider";
-import {MapPinIcon,
-  CalendarDaysIcon,
-} from "@heroicons/react/24/solid";
-import { CalculatorIcon } from "@heroicons/react/24/outline";
+import { MapPinIcon, CalendarDaysIcon } from "@heroicons/react/24/solid";
+import { formatDistanceToNow, parseISO } from "date-fns";
+
 const Timeline = ({ displays }) => {
-  const formatDate = (timestamp) => {
-    if (!timestamp) return "";
-    const date = new Date(timestamp.seconds * 1000);
-    const options = { year: "numeric", month: "long", day: "numeric" };
-    return date.toLocaleDateString(undefined, options);
-  };
+  const formatDate = (dateString) => {
+    if (!dateString) return "";
 
-  const formatTimeRange = (startTime, endTime) => {
-    if (!startTime) return "";
-    const formattedStartTime = formatDate(startTime);
-    const formattedEndTime = endTime ? ` - ${formatDate(endTime)}` : "";
-    return `${formattedStartTime}${formattedEndTime}`;
-  };
+    const date = parseISO(dateString);
+    const now = new Date();
 
-  const sortedDisplays = displays
-    .filter((display) => display.createdAt)
-    .sort((a, b) => b.createdAt.seconds - a.createdAt.seconds);
+    const difference = now - date;
+
+    // If the difference is more than 2 months (60 days), return the full date
+    const maxRelativeTime = 60 * 24 * 60 * 60 * 1000; 
+
+    if (difference > maxRelativeTime) {
+      const options = { year: "numeric", month: "long", day: "numeric" };
+      return date.toLocaleDateString(undefined, options); // Full date if older than 2 months
+    }
+
+    return `${formatDistanceToNow(date)} ago`;
+  };
+  
+    const sortedDisplays = displays
+      .filter((display) => display.date)
+      .sort((a, b) => new Date(b.date) - new Date(a.date));
+  
 
   return (
     <section className="relative min-h-screen flex flex-col justify-center bg-slate-50 overflow-hidden">
@@ -56,11 +61,11 @@ const Timeline = ({ displays }) => {
                   </svg>
                 </div>
                 <div className="block p-4 rounded-lg shadow-lg bg-gray-100 flex-grow ml-4">
-                <div className="text-sm font-medium text-sky-600 mb-2 flex items-center">
-                    <CalendarDaysIcon className="h-5 w-5"/>{formatTimeRange(display.startTime, display.endTime) ||
-                      formatDate(display.createdAt)}
+                  <div className="text-sm font-bold text-gray-800 mb-2 flex items-center">
+                    <CalendarDaysIcon className="h-5 w-5 mr-2" />
+                    {formatDate(display.date)}
                   </div>
-                  
+
                   {display.files && display.files.length > 0 && (
                     <div className="mt-4">
                       <GridSlider
@@ -73,17 +78,22 @@ const Timeline = ({ displays }) => {
                       />
                     </div>
                   )}
+
                   <div className="font-bold text-gray-900 text-xl mb-2 pt-2 pl-2">
                     {display.title}
                   </div>
-                  {display.location?.place_name && (
-                    <div className="text-sm font-medium text-gray-800 mb-2 pl-2 flex items-center">
-                        <MapPinIcon className="h-5 w-5" />
-                        {display.location.place_name}
-                    </div>
-                    )}
-                    <div className="text-gray-700 pl-5">{display.caption}</div>
 
+                  {display.location?.place_name && (
+                    <div className="flex items-center mb-2 pl-2">
+                    <div className="text-sm font-medium text-laurelgreen">
+                      <MapPinIcon className="h-5 w-5"/>
+                      </div>
+                      <div className="text-sm font-medium text-gray-900 flex items-center">
+                      {display.location.place_name}
+                    </div>
+                    </div>
+                  )}
+                  <div className="text-gray-700 pl-5">{display.caption}</div>
                 </div>
               </div>
             </div>

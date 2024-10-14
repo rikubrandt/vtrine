@@ -12,7 +12,7 @@ export default function LandingPage() {
     'Your life, on a timeline.',
   ];
 
-  const timings = [4000, 5000, 3000, 3000]; 
+  const timings = [1000, 1500, 1000, 1000]; 
   const [currentMottoIndex, setCurrentMottoIndex] = useState(0);
   const [fade, setFade] = useState(true); 
   const router = useRouter();

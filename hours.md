@@ -53,5 +53,5 @@
 | 29.9.2024  | 4    | Make the modals much more cleaner especially on mobile.                               |
 | 30.9.2024  | 2    | Landing page for the site.                                                            |
 | 15.10.2024 | 2    | Fix date in timeline, Better the upload design.                                       |
-
-| Sum | 130 | |
+| 16.10.2024 | 2    | Prettify, write readme etc.. wrap up. ukno                                            |
+| Sum        | 132  |                                                                                       | 

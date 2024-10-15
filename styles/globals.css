@@ -3,13 +3,13 @@
 @import "tailwindcss/utilities";
 
 @layer components {
-  .navBtn {
-    @apply hidden h-6 md:inline-flex cursor-pointer hover:scale-125 transition-all duration-150 ease-out;
-  }
+    .navBtn {
+        @apply hidden h-6 md:inline-flex cursor-pointer hover:scale-125 transition-all duration-150 ease-out;
+    }
 
-  .btn {
-    @apply h-7 hover:scale-125 cursor-pointer transition-all duration-150 ease-out;
-  }
+    .btn {
+        @apply h-7 hover:scale-125 cursor-pointer transition-all duration-150 ease-out;
+    }
 }
 
 .loader {
@@ -19,71 +19,66 @@
     border-radius: 50%;
     border-left-color: #09f;
     animation: spin 1s ease infinite;
-  }
-  
-  @keyframes spin {
+}
+
+@keyframes spin {
     0% {
-      transform: rotate(0deg);
+        transform: rotate(0deg);
     }
     100% {
-      transform: rotate(360deg);
+        transform: rotate(360deg);
     }
-  }
-  
-
+}
 
 .wheel {
-  width: 500px;
-  height: 500px;
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
+    width: 500px;
+    height: 500px;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
 }
 
 .card {
-  width: 200px;
-  height: 200px;
-  border-radius: 100px;
-  box-shadow: 10px 10px 8px black;
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
-  font-size: 2.5em;
+    width: 200px;
+    height: 200px;
+    border-radius: 100px;
+    box-shadow: 10px 10px 8px black;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 2.5em;
 }
-
-
-
 
 .timeline {
     position: relative;
     padding-left: 2rem;
     padding-right: 2rem;
-  }
-  
-  .timeline-snap-icon {
+}
+
+.timeline-snap-icon {
     display: flex;
     flex-direction: column;
     position: relative;
-  }
-  
-  .timeline-snap-icon li {
+}
+
+.timeline-snap-icon li {
     display: flex;
     align-items: center;
     position: relative;
-  }
-  
-  .timeline-snap-icon li::before {
-    content: '';
+}
+
+.timeline-snap-icon li::before {
+    content: "";
     position: absolute;
     left: 50%;
     width: 2px;
     height: 100%;
     background-color: #e5e7eb;
-  }
-  
-  .timeline-middle {
+}
+
+.timeline-middle {
     position: relative;
     flex-shrink: 0;
     width: 3rem;
@@ -96,120 +91,118 @@
     z-index: 10;
     margin-left: -1.5rem;
     margin-right: -1.5rem;
-  }
-  
-  .timeline-start {
+}
+
+.timeline-start {
     flex: 1;
     padding-right: 1.5rem;
-  }
-  
-  .timeline-end {
+}
+
+.timeline-end {
     flex: 1;
     padding-left: 1.5rem;
-  }
-  
-  img {
+}
+
+img {
     -webkit-touch-callout: none;
     -webkit-user-select: none;
     user-select: none;
-  }
-  
+}
 
-  .navigation-wrapper {
+.navigation-wrapper {
     position: relative;
     width: 100%;
     height: 100%;
-  }
-  
+}
+
 .carousel-item {
-transition: opacity 0.7s ease-in-out, transform 0.7s ease-in-out;
+    transition:
+        opacity 0.7s ease-in-out,
+        transform 0.7s ease-in-out;
 }
 
 .carousel-item.active {
-opacity: 1;
-transform: translateX(0);
+    opacity: 1;
+    transform: translateX(0);
 }
 
 .carousel-item.inactive {
-opacity: 0;
-transform: translateX(-100%);
+    opacity: 0;
+    transform: translateX(-100%);
 }
 
-  /* Aspect ratio handling */
+/* Aspect ratio handling */
 .aspect-ratio-9-16 {
     aspect-ratio: 9 / 16;
-  }
-  
-  .aspect-ratio-1-1 {
-    aspect-ratio: 1 / 1;
-  }
-  
-  .full-height {
-    height: 100vh; 
-  }
-  
+}
 
-  
-  .map-container {
+.aspect-ratio-1-1 {
+    aspect-ratio: 1 / 1;
+}
+
+.full-height {
+    height: 100vh;
+}
+
+.map-container {
     position: relative;
     width: 100%;
     height: 400px;
-  }
-  
-  .map-container.desktop {
+}
+
+.map-container.desktop {
     height: 600px;
-  }
-  
-  .map-container.mobile {
+}
+
+.map-container.mobile {
     height: 100vh;
     scroll-snap-align: start;
     overflow: hidden;
-  }
-  
-  
-  @media (max-width: 768px) {
+}
+
+@media (max-width: 768px) {
     .map-container {
-      height: 100vh;
-      scroll-snap-align: start;
+        height: 100vh;
+        scroll-snap-align: start;
     }
-  }
-  
+}
 
-  /* Modal Background and Wrapper Styling */
+/* Modal Background and Wrapper Styling */
 .bg-black.bg-opacity-50 {
-    backdrop-filter: blur(2px); 
-  }
-  
-  @media (max-width: 768px) {
-    .max-w-lg {
-      max-width: 100%; 
-    }
-  }
-  
-  @media (min-width: 768px) {
-    .max-w-3xl {
-      max-width: 768px;
-    }
-  }
-  
-  @media (min-width: 1024px) {
-    .max-w-5xl {
-      max-width: 1024px;
-    }
-  }
-  
-  @media (min-width: 1280px) {
-    .max-w-6xl {
-      max-width: 1280px;
-    }
-  }
-  
-  button {
-    transition: background-color 0.2s ease, color 0.2s ease;
-  }
+    backdrop-filter: blur(2px);
+}
 
-  .wrap {
+@media (max-width: 768px) {
+    .max-w-lg {
+        max-width: 100%;
+    }
+}
+
+@media (min-width: 768px) {
+    .max-w-3xl {
+        max-width: 768px;
+    }
+}
+
+@media (min-width: 1024px) {
+    .max-w-5xl {
+        max-width: 1024px;
+    }
+}
+
+@media (min-width: 1280px) {
+    .max-w-6xl {
+        max-width: 1280px;
+    }
+}
+
+button {
+    transition:
+        background-color 0.2s ease,
+        color 0.2s ease;
+}
+
+.wrap {
     width: 100%;
     position: relative;
-  }
-  
+}
